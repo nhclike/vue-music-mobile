@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>评论页面</h1>
+    <h1>推荐页面</h1>
   </div>
 </template>
 
@@ -13,5 +13,7 @@
 </script>
 
 <style scoped lang="less">
-
+  h1{
+    color:#fff
+  }
 </style>

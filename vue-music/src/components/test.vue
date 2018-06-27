@@ -9,7 +9,6 @@
 </template>
 
 <script>
-  import './../common/css/test.css'
   export default {
     data(){
       return {}
@@ -18,6 +17,10 @@
 </script>
 
 <style scoped lang="less">
+
+@import "./../common/css/variable.less";
+@import "./../common/css/test.less";
+
   h1{
     color: #fff;
   }

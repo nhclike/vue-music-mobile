@@ -13,5 +13,7 @@
 </script>
 
 <style scoped lang="less">
-
+  h1{
+    color:#fff
+  }
 </style>
