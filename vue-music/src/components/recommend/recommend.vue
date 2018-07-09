@@ -6,7 +6,7 @@
          <slider>
            <div v-for="item in recommends">
              <a :href="item.linkUrl">
-               <img @load="imageLoad" :src="item.picUrl" alt="">
+               <img @load="imageLoad" class="needsclick" :src="item.picUrl" alt="">
              </a>
            </div>
          </slider>
@@ -16,7 +16,7 @@
          <ul>
            <li v-for="item in discList" class="item">
              <div class="icon">
-               <img width="60" height="60"  :src="item.imgurl">
+               <img width="60" height="60"  v-lazy="item.imgurl">
              </div>
              <div class="text">
                <h2 class="name" v-html="item.creator.name"></h2>
@@ -26,7 +26,9 @@
          </ul>
        </div>
      </div>
-
+      <div class="load-container" v-show="!discList.length">
+        <loading></loading>
+      </div>
    </scroll>
  </div>
 </template>
@@ -35,7 +37,8 @@
   import {getRecommend,getDiscList} from '@/api/recommend'
   import {ERR_OK} from '@/api/config'
   import Slider from '@/base/slider/slider.vue'
-  import Scroll from '@/base/slider/scroll.vue'
+  import Scroll from '@/base/scroll/scroll.vue'
+  import Loading from '@/base/loading/loading.vue'
   export default {
     data() {
       return {
@@ -46,11 +49,15 @@
     },
     created(){
       this._getRecommend();
-      this._getDiscList();
+      setTimeout(()=>{
+        this._getDiscList();
+
+      },1000)
     },
     components:{
       Slider,
-      Scroll
+      Scroll,
+      Loading
     },
     methods:{
       _getRecommend(){
@@ -132,6 +139,12 @@
             }
           }
         }
+      }
+      .load-container{
+        position: absolute;
+        width: 100%;
+        top:50%;
+        transform: translateY(-50%);
       }
     }
   }
