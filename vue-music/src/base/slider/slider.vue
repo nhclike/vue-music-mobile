@@ -85,7 +85,7 @@
         });
         this.slider.on('scrollEnd',()=>{
           let pageIndex=this.slider.getCurrentPage().pageX;
-          console.log(pageIndex+'pageIndex');
+         // console.log(pageIndex+'pageIndex');
           if(this.loop){
             pageIndex-=1;
           }
