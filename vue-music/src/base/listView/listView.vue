@@ -1,5 +1,4 @@
 <template>
-	<div>
     <scroll class="listview" :data="data">
       <ul>
         <li v-for="group in data" class="list-group">
@@ -13,11 +12,10 @@
         </li>
       </ul>
     </scroll>
-	</div>
 </template>
 
 <script>
-  import Scroll from '@/base/scroll/scroll'
+  import Scroll from '@/base/scroll/scroll.vue'
   import Loading from '@/base/loading/loading.vue'
 
   export default {
@@ -31,7 +29,8 @@
       return {}
     },
     components:{
-      Scroll
+      Scroll,
+      Loading
     }
   }
 </script>

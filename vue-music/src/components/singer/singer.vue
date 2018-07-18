@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="singer">
     <list-view :data="singers">
 
     </list-view>
@@ -85,7 +85,10 @@
 </script>
 
 <style scoped lang="less">
-  h1{
-    color:#fff
+  div.singer{
+    position: fixed;
+    width: 100%;
+    top: 88px;
+    bottom: 0;
   }
 </style>
