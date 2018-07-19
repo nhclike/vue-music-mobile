@@ -34,6 +34,7 @@
 </template>
 
 <script>
+  
   import {getRecommend,getDiscList} from '@/api/recommend'
   import {ERR_OK} from '@/api/config'
   import Slider from '@/base/slider/slider.vue'
@@ -81,7 +82,8 @@
           this.$refs.scroll.refresh();
           this.imageLoaded=true;
         }
-      }
+      },
+      
     }
   }
 </script>

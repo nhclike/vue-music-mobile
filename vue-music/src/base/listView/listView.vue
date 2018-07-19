@@ -1,5 +1,9 @@
 <template>
-    <scroll class="listview" :data="data" ref="listview">
+    <scroll class="listview"
+            :data="data"
+            :listenScroll="listenScroll"
+            @scroll="scroll"
+            ref="listview">
       <ul>
         <li v-for="group in data" class="list-group" ref="listGroup">
           <h2 class="list-group-title">{{group.title}}</h2>
@@ -13,7 +17,7 @@
       </ul>
       <div class="list-shortcut"   @touchstart="onShortCutTouchStart" @touchmove.stop.prevent="onShortCutTouchMove">
         <ul>
-          <li class="item" v-for="(item,index) in shotcutList" :data-index="index" >
+          <li class="item" v-for="(item,index) in shotcutList" :data-index="index" :class="{current: currentIndex==index}">
             {{item}}
           </li>
         </ul>
@@ -34,11 +38,13 @@
     },
     data(){
       return {
-
+        scrollY:-1,
+        currentIndex:0
       }
     },
     created(){
-      this.touch={}
+      this.touch={};
+      this.listenScroll=true
     },
     computed:{
       shotcutList(){
@@ -66,6 +72,20 @@
         let achorIndex=Number(this.touch.achorIndex)+delData;
         this.$refs.listview.scrollToElement(this.$refs.listGroup[achorIndex],0)
 
+      },
+      scroll(pos){
+        console.log(pos)
+        this.scrollY=pos.y;
+      },
+      _calculateHeight(){
+
+      }
+    },
+    watch:{
+      data(){
+        setTimeout(()=>{
+          this._calculateHeight()
+        },20)
       }
     }
   }
