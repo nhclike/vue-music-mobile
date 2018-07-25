@@ -2,6 +2,7 @@
     <scroll class="listview"
             :data="data"
             :listenScroll="listenScroll"
+            :probeType="probeType"
             @scroll="scroll"
             ref="listview">
       <ul>
@@ -44,7 +45,8 @@
     },
     created(){
       this.touch={};
-      this.listenScroll=true
+      this.listenScroll=true;
+      this.probeType=3
     },
     computed:{
       shotcutList(){
@@ -63,21 +65,34 @@
         let firstTouch=e.touches[0].pageY;
         this.touch.y1=firstTouch;
         this.touch.achorIndex=achorIndex;
-        this.$refs.listview.scrollToElement(this.$refs.listGroup[achorIndex],0)
+        this.scrollTo(achorIndex);
       },
       onShortCutTouchMove(e){
         let firstTouch=e.touches[0].pageY;
         this.touch.y2=firstTouch;
         let delData=(this.touch.y2-this.touch.y1)/18 | 0;
         let achorIndex=Number(this.touch.achorIndex)+delData;
-        this.$refs.listview.scrollToElement(this.$refs.listGroup[achorIndex],0)
-
+        this.scrollTo(achorIndex)
       },
       scroll(pos){
-        console.log(pos)
         this.scrollY=pos.y;
       },
+      scrollTo(index){
+        if(index){
+          this.currentIndex=index;
+          this.$refs.listview.scrollToElement(this.$refs.listGroup[index],0)
+        }
+      },
       _calculateHeight(){
+        this.listHeight=[];
+        let height=0;
+        this.listHeight.push(height);
+        let list=this.$refs.listGroup;
+        for(var i=0;i<list.length;i++){
+          let item=list[i];
+          height +=item.clientHeight;
+          this.listHeight.push(height);
+        }
 
       }
     },
@@ -86,6 +101,32 @@
         setTimeout(()=>{
           this._calculateHeight()
         },20)
+      },
+      scrollY(newY){
+        const lh=this.listHeight;
+        //滑到顶部
+        if(newY>0){
+          this.currentIndex=0;
+          return ;
+        }
+        //滑到中间
+        for(var i=0;i<lh.length-1;i++){
+          var height1=lh[i];
+          var height2=lh[i+1];
+          if( (-newY>=height1 && -newY<height2)){
+            this.currentIndex=i;
+            console.log(newY);
+            console.log(this.listHeight);
+            console.log(this.currentIndex);
+            return ;
+          }
+        }
+        //滑到底部
+        if(-newY>lh[lh.length-1]){
+          this.currentIndex=lh.length-2;
+          return ;
+        }
+
       }
     }
   }
