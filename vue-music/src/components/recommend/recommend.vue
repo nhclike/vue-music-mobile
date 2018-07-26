@@ -34,7 +34,7 @@
 </template>
 
 <script>
-  
+
   import {getRecommend,getDiscList} from '@/api/recommend'
   import {ERR_OK} from '@/api/config'
   import Slider from '@/base/slider/slider.vue'
@@ -50,10 +50,11 @@
     },
     created(){
       this._getRecommend();
-      setTimeout(()=>{
+      /*setTimeout(()=>{
         this._getDiscList();
 
-      },1000)
+      },1000)*/
+      this._getDiscList();
     },
     components:{
       Slider,
@@ -83,7 +84,7 @@
           this.imageLoaded=true;
         }
       },
-      
+
     }
   }
 </script>

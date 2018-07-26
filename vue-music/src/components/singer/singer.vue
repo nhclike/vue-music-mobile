@@ -3,6 +3,7 @@
     <list-view :data="singers">
 
     </list-view>
+
   </div>
 </template>
 
@@ -12,6 +13,7 @@
   import {getSingerList} from '@/api/singer'
   import {ERR_OK} from '@/api/config'
   import Singer from '@/common/js/singer'
+
   import ListView from '@/base/listView/listView'
   export default {
     data(){
@@ -20,11 +22,15 @@
       }
     },
     created(){
+      /*setTimeout(()=>{
         this._getSingerList();
 
+      },1000)*/
+      this._getSingerList();
     },
     components:{
-      ListView
+      ListView,
+
     },
     methods:{
         _getSingerList(){
@@ -32,7 +38,7 @@
               if(response.code==ERR_OK){
 
                   this.singers=this._normalizeSinger(response.data.list);
-                  console.log(this.singers);
+                  //console.log(this.singers);
               }
           })
         },

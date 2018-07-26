@@ -23,6 +23,12 @@
           </li>
         </ul>
       </div>
+      <div class="fixTitle" v-show="fixTitle"  ref="fixed">
+        <h2>{{fixTitle}}</h2>
+      </div>
+      <div class="load-container" v-show="!data.length">
+        <loading></loading>
+      </div>
     </scroll>
 </template>
 
@@ -30,6 +36,7 @@
   import Scroll from '@/base/scroll/scroll.vue'
   import Loading from '@/base/loading/loading.vue'
   import {getData} from '@/common/js/dom.js'
+  const TITLE_HEIGHT=30;
   export default {
     props:{
       data:{
@@ -40,19 +47,28 @@
     data(){
       return {
         scrollY:-1,
-        currentIndex:0
+        currentIndex:0,
+        diff:-1
       }
     },
     created(){
+      //定义滚动组件的参数
       this.touch={};
       this.listenScroll=true;
       this.probeType=3
     },
     computed:{
-      shotcutList(){
+      shotcutList(){//根据传过来的data计算右边导航数据
         return this.data.map((group)=>{
           return group.title.substr(0,1)
         })
+      },
+      fixTitle(){//实时计算固定栏上显示
+        //console.log(this.data[this.currentIndex])
+        if(this.scrollY>0){
+          return ''
+        }
+        return this.data[this.currentIndex]?this.data[this.currentIndex].title:''
       }
     },
     components:{
@@ -74,16 +90,17 @@
         let achorIndex=Number(this.touch.achorIndex)+delData;
         this.scrollTo(achorIndex)
       },
-      scroll(pos){
+      scroll(pos){ //监听到的滚动组件派发的滚动事件
         this.scrollY=pos.y;
       },
       scrollTo(index){
         if(index){
-          this.currentIndex=index;
+          //this.currentIndex=index;
+          this.scrollY=-this.listHeight[index];
           this.$refs.listview.scrollToElement(this.$refs.listGroup[index],0)
         }
       },
-      _calculateHeight(){
+      _calculateHeight(){  //计算歌手列表各个模块的高度
         this.listHeight=[];
         let height=0;
         this.listHeight.push(height);
@@ -93,7 +110,6 @@
           height +=item.clientHeight;
           this.listHeight.push(height);
         }
-
       }
     },
     watch:{
@@ -115,9 +131,11 @@
           var height2=lh[i+1];
           if( (-newY>=height1 && -newY<height2)){
             this.currentIndex=i;
-            console.log(newY);
+            this.diff=height2+newY;
+            //console.log(this.diff);
+            /*console.log(newY);
             console.log(this.listHeight);
-            console.log(this.currentIndex);
+            console.log(this.currentIndex);*/
             return ;
           }
         }
@@ -126,7 +144,20 @@
           this.currentIndex=lh.length-2;
           return ;
         }
-
+      },
+      diff(newVal){ //监听2个导航栏相遇时中间差
+        //console.log(newVal);
+        let fixtop=newVal>0 && newVal<TITLE_HEIGHT? newVal-TITLE_HEIGHT:0;
+        console.log(this.fixtop);
+        console.log(fixtop);
+        if(this.fixtop===fixtop){
+          return ;
+        }
+        else{
+          this.fixtop=fixtop;
+          console.log(this.$refs.fixed)
+          this.$refs.fixed.style.transform=`translateY(${fixtop}px)`
+        }
       }
     }
   }
@@ -186,6 +217,20 @@
            color:@color-theme;
           }
         }
+      }
+    }
+    .fixTitle{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      h2{
+        height: 30px;
+        line-height: 30px;
+        padding-left: 20px;
+        font-size: @font-size-small;
+        color:@color-text-l;
+        background:@color-highlight-background;
       }
     }
   }
