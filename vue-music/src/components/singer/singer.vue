@@ -13,7 +13,7 @@
   import {getSingerList} from '@/api/singer'
   import {ERR_OK} from '@/api/config'
   import Singer from '@/common/js/singer'
-
+  import { mapMutations } from 'vuex'
   import ListView from '@/base/listView/listView'
   export default {
     data(){
@@ -89,12 +89,16 @@
           return hot.concat(ret)
       },
       singerClick(item){
-          console.log(item);
+          //console.log(item);
           this.$router.push({
             path:'/singer/detail',
             query: item
-          })
-      }
+          });
+          this.setSinger(item);
+      },
+      ...mapMutations({
+        setSinger: 'SET_SINGER'
+      })
     }
   }
 </script>

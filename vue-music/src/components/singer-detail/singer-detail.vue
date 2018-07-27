@@ -10,31 +10,42 @@
 <script>
   import {getSingerDetail} from '@/api/singer'
   import {ERR_OK} from '@/api/config'
-
+  import { mapGetters } from 'vuex'
   export default {
     data(){
       return {
 
       }
     },
+    computed:{
+      ...mapGetters([
+        'singer'
+      ])
+    },
     created(){
       this._getSingerData();
+      console.log(this.singer)
     },
     methods:{
-      _getSingerId(){ //解析歌手列表页面传过来的参数
+      /*_getSingerId(){ //解析歌手列表页面传过来的参数
         let singerInfo= this.$route.query;
-        console.log(singerInfo);
+        //console.log(singerInfo);
         return singerInfo.sid;
-      },
+      },*/
       _getSingerData(){ //通过传过来的id拿到歌手详细数据
-        this.singerId=this._getSingerId();
-        console.log(this.singerId);
-        if(this.singerId){
-          getSingerDetail(this.singerId).then((res)=>{
+        /*this.singerId=this._getSingerId();*/
+        //console.log(this.singerId);
+        console.log(this.singer.id);
+        if(this.singer.id){
+          getSingerDetail(this.singer.id).then((res)=>{
             if(res.code==ERR_OK){
               let singerData=res.data;
               console.log(singerData);
             }
+          })
+        }else{
+          this.$router.push({
+            path:'/singer'
           })
         }
 

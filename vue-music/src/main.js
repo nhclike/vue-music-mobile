@@ -6,6 +6,7 @@ import router from './router'
 import fastclick from 'fastclick'
 import VueLazyLoad from 'vue-lazyload'
 import '@/common/css/index.css'
+import store from './store'
 Vue.config.productionTip = false
 
 /* 处理移动端click事件300毫秒延迟 */
@@ -21,5 +22,6 @@ Vue.use(VueLazyLoad,{
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })
