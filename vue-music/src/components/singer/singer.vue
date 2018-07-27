@@ -1,9 +1,9 @@
 <template>
   <div class="singer">
-    <list-view :data="singers">
+    <list-view :data="singers" @itemClick="singerClick">
 
     </list-view>
-
+    <router-view></router-view>
   </div>
 </template>
 
@@ -53,7 +53,8 @@
             if(index<HOT_SINGER_LEN){
               map.hot.items.push(new Singer({
                 id:item.Fsinger_mid,
-                name:item.Fsinger_name
+                name:item.Fsinger_name,
+                sid:item.Fsinger_id
               }))
             }
             const key=item.Findex;
@@ -65,7 +66,8 @@
             }
             map[key].items.push(new Singer({
               id:item.Fsinger_mid,
-              name:item.Fsinger_name
+              name:item.Fsinger_name,
+              sid:item.Fsinger_id
             }));
 
           });
@@ -85,6 +87,13 @@
             return a.title.charCodeAt(0)-b.title.charCodeAt(0);
           });
           return hot.concat(ret)
+      },
+      singerClick(item){
+          console.log(item);
+          this.$router.push({
+            path:'/singer/detail',
+            query: item
+          })
       }
     }
   }
