@@ -10,11 +10,12 @@
 <script>
   import {getSingerDetail} from '@/api/singer'
   import {ERR_OK} from '@/api/config'
+  import {createSong} from '@/common/js/song'
   import { mapGetters } from 'vuex'
   export default {
     data(){
       return {
-
+        song:[]
       }
     },
     computed:{
@@ -24,7 +25,7 @@
     },
     created(){
       this._getSingerData();
-      console.log(this.singer)
+      //console.log(this.singer);
     },
     methods:{
       /*_getSingerId(){ //解析歌手列表页面传过来的参数
@@ -35,12 +36,16 @@
       _getSingerData(){ //通过传过来的id拿到歌手详细数据
         /*this.singerId=this._getSingerId();*/
         //console.log(this.singerId);
-        console.log(this.singer.id);
+        //console.log(this.singer.id);
+        let me=this;
         if(this.singer.id){
           getSingerDetail(this.singer.id).then((res)=>{
             if(res.code==ERR_OK){
               let singerData=res.data;
-              console.log(singerData);
+              let songList=singerData.list;
+              me._normalizeSongs(songList);
+              //console.log(singerData);
+
             }
           })
         }else{
@@ -49,6 +54,15 @@
           })
         }
 
+      },
+      _normalizeSongs(list){
+        let ret=[];
+        for(var i=0;i<list.length;i++){
+          var musicData=list[i].musicData;
+          let mdata=createSong(musicData);
+          this.song.push(mdata);
+        }
+        console.log(this.song)
       }
     }
   }
