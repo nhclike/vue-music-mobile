@@ -1,8 +1,6 @@
 <template>
   <transition name="singer">
-    <div class="singer-detail">
-      this  is a singer detail test
-    </div>
+    <music-list :songs="songs" :bgImage="bgImage" :title="title"></music-list>
   </transition>
 
 </template>
@@ -12,13 +10,20 @@
   import {ERR_OK} from '@/api/config'
   import {createSong} from '@/common/js/song'
   import { mapGetters } from 'vuex'
+  import MusicList from '@/components/music-list/music-list'
   export default {
     data(){
       return {
-        song:[]
+        songs:[]
       }
     },
     computed:{
+      title(){
+        return this.singer.name;
+      },
+      bgImage(){
+        return this.singer.avatar
+      },
       ...mapGetters([
         'singer'
       ])
@@ -26,6 +31,9 @@
     created(){
       this._getSingerData();
       //console.log(this.singer);
+    },
+    components:{
+      MusicList,
     },
     methods:{
       /*_getSingerId(){ //解析歌手列表页面传过来的参数
@@ -43,8 +51,8 @@
             if(res.code==ERR_OK){
               let singerData=res.data;
               let songList=singerData.list;
-              me._normalizeSongs(songList);
-              //console.log(singerData);
+              this.songs=me._normalizeSongs(songList);
+              console.log(songList);
 
             }
           })
@@ -59,10 +67,11 @@
         let ret=[];
         for(var i=0;i<list.length;i++){
           var musicData=list[i].musicData;
+          //console.log(musicData);
           let mdata=createSong(musicData);
-          this.song.push(mdata);
+          ret.push(mdata);
         }
-        console.log(this.song)
+        return ret
       }
     }
   }
