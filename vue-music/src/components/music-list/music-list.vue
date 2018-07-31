@@ -5,7 +5,13 @@
     </div>
     <h1 class="title">{{title}}</h1>
     <div class="bg-image"  :style="bgStyle" ref="bgImage">
-      <div class="filter"></div>
+      <div class="play-wrapper">
+        <div ref="playBtn" v-show="songs.length>0" class="play">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
+      <div class="filter" ref="filter"></div>
     </div>
     <div class="bg-layer" ref="layer">
 
@@ -80,23 +86,40 @@
       },
       scrollY(newY){
         let translateY=Math.max(this.minTranslateY,newY);
-        let zindex=0;
-        this.$refs.layer.style['transform']=`translateY(${translateY}px)`;
+        let zIndex=0;
+        let scale = 1;
+        let blur = 0
+
+        const percent = Math.abs(newY / this.imageHeight);
         console.log(this.minTranslateY);
         console.log(newY);
-        if(newY<this.minTranslateY){
-          this.$refs.bgImage.style['padding-top']='40px';
-          this.$refs.bgImage.style['z-index']='20';
+        if(newY>0){  //滚动上限
+          zIndex=10;
+          scale = 1 + percent
+
+        }else{
+          blur = Math.min(20, percent * 20)
 
         }
-        else if(newY>0){
-          this.$refs.bgImage.style['padding-top']='70%';
+        this.$refs.layer.style['transform']=`translateY(${translateY}px)`;
+        this.$refs.filter.style['backdrop'] = `blur(${blur}px)`;
+
+
+        if(newY<this.minTranslateY){
+          zIndex=10;
+          this.$refs.bgImage.style['padding-top']='0';
+          this.$refs.bgImage.style['height']='40px';
+          this.$refs.playBtn.style['display']='none';
         }
-        else if(newY>this.minTranslateY){
-          this.$refs.layer.style['transform']=`translateY(${translateY}px)`;
-          let top=newY-this.minTranslateY+40;
-          this.$refs.bgImage.style['padding-top']=top+'px';
+        else {
+          this.$refs.bgImage.style.paddingTop = '70%';
+          this.$refs.bgImage.style.height = 0;
+          this.$refs.playBtn.style['display']='block';
+
         }
+        this.$refs.bgImage.style['transform'] = `scale(${scale})`;
+
+        this.$refs.bgImage.style.zIndex = zIndex
       }
     }
   }
@@ -144,6 +167,40 @@
       padding-top: 70%;
       transform-origin: top;
       background-size: cover;
+      .play-wrapper{
+        position: absolute;
+        bottom:20px;
+        width: 100%;
+        .play{
+
+          text-align: center;
+          border: 1px solid @color-theme;
+          color:@color-theme;
+          border-radius: 100px; box-sizing: border-box;
+          width:135px;
+          padding: 7px 0;
+          margin: 0 auto;
+          .icon-play{
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+            font-size:@font-size-medium-x;
+          }
+          .text{
+            display: inline-block;
+            vertical-align: middle;
+            font-size: @font-size-small;
+          }
+        }
+      }
+      .filter{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(7, 17, 27, 0.4);
+      }
     }
     .list{
       position:fixed;
