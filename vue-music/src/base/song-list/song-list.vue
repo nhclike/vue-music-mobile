@@ -8,10 +8,14 @@
         </div>
       </li>
     </ul>
+    <div class="load-container" v-show="!songs.length">
+      <loading></loading>
+    </div>
 	</div>
 </template>
 
 <script>
+  import Loading from '@/base/loading/loading'
   export default {
     props:{
       songs:{
@@ -26,6 +30,9 @@
       getDesc(song) {
         return `${song.singer}·${song.album}`
       }
+    },
+    components:{
+      Loading
     }
   }
 </script>
@@ -33,6 +40,12 @@
 <style scoped lang="less">
   @import "./../../common/css/variable.less";
   @import "./../../common/css/mixin.less";
+  .song-list{
+
+  }
+  .load-container{
+    
+  }
  .item{
    display: flex;
    align-items: center;

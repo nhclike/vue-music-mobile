@@ -1,7 +1,7 @@
 <template>
 	<div class="music-list">
-    <div class="back">
-      <i class="icon-back"></i>
+    <div class="back" @click="back">
+        <i class="icon-back" ></i>
     </div>
     <h1 class="title">{{title}}</h1>
     <div class="bg-image"  :style="bgStyle" ref="bgImage">
@@ -28,7 +28,11 @@
 <script>
   import SongList from '@/base/song-list/song-list'
   import Scroll from '@/base/scroll/scroll'
+  import {prefixStyle} from '@/common/js/dom.js'
   const RESERVED_HEIGHT=40;
+  //根据浏览器自动加前缀
+  const transform=prefixStyle('transform');
+  const backdrop=prefixStyle('backdrop-filter');
   export default {
     props:{
       songs:{
@@ -78,6 +82,10 @@
     methods:{
       scroll(pos){
         this.scrollY=pos.y;
+      },
+      back(){
+        console.log(this.$router);
+        this.$router.back()
       }
     },
     watch:{
@@ -101,14 +109,14 @@
           blur = Math.min(20, percent * 20)
 
         }
-        this.$refs.layer.style['transform']=`translateY(${translateY}px)`;
-        this.$refs.filter.style['backdrop'] = `blur(${blur}px)`;
+        this.$refs.layer.style[transform]=`translateY(${translateY}px)`;
+        this.$refs.filter.style[backdrop] = `blur(${blur}px)`;
 
 
         if(newY<this.minTranslateY){
           zIndex=10;
           this.$refs.bgImage.style['padding-top']='0';
-          this.$refs.bgImage.style['height']='40px';
+          this.$refs.bgImage.style['height']=RESERVED_HEIGHT+'px';
           this.$refs.playBtn.style['display']='none';
         }
         else {
@@ -117,7 +125,7 @@
           this.$refs.playBtn.style['display']='block';
 
         }
-        this.$refs.bgImage.style['transform'] = `scale(${scale})`;
+        this.$refs.bgImage.style[transform] = `scale(${scale})`;
 
         this.$refs.bgImage.style.zIndex = zIndex
       }

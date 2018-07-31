@@ -145,7 +145,9 @@
     bottom: 12px;
     text-align: center;
     font-size: 0;
-    .dot{
+    transform: translateZ(1px);
+
+  .dot{
       display: inline-block;
       margin: 0 4px;
       width: 8px;
