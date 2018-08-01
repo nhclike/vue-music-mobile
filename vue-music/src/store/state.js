@@ -1,8 +1,14 @@
-/**
- * Created by lij on 2018/7/27.
- */
+
+
+import {playMode} from '@/common/js/config.js'
 const state={
-  singer:{}
-}
+  singer:{},
+  playing:false,
+  fullScreen:false,
+  playList:[],
+  sequenceList:[],
+  mode:playMode.sequence,
+  currentIndex:-1
+};
 
 export default state

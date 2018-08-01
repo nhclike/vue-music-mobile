@@ -6,7 +6,7 @@
     <h1 class="title">{{title}}</h1>
     <div class="bg-image"  :style="bgStyle" ref="bgImage">
       <div class="play-wrapper">
-        <div ref="playBtn" v-show="songs.length>0" class="play">
+        <div ref="playBtn" v-show="songs.length>0" class="play" @click="random">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -18,7 +18,7 @@
     </div>
     <scroll :data="songs" class="list" ref="list" :probeType="probeType" :listenScroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
-        <song-list :songs="songs" ></song-list>
+        <song-list :songs="songs" @selectItem="selectItem"></song-list>
 
       </div>
     </scroll>
@@ -29,6 +29,7 @@
   import SongList from '@/base/song-list/song-list'
   import Scroll from '@/base/scroll/scroll'
   import {prefixStyle} from '@/common/js/dom.js'
+  import {mapActions} from 'vuex'  //action中定义一次改变vuex中多个变量的方法
   const RESERVED_HEIGHT=40;
   //根据浏览器自动加前缀
   const transform=prefixStyle('transform');
@@ -86,7 +87,21 @@
       back(){
         console.log(this.$router);
         this.$router.back()
-      }
+      },
+      random(){
+
+      },
+      selectItem(song,index){
+        //console.log(song);
+        //console.log(index);
+        this.selectPlay({
+          list:this.songs,
+          index:index
+        })
+      },
+      ...mapActions([  //暴露出actions中的方法，作为方法直接调用
+        'selectPlay'
+      ])
     },
     watch:{
       songs(old){

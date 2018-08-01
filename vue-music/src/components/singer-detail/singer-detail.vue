@@ -63,7 +63,7 @@
         }
 
       },
-      _normalizeSongs(list){
+      _normalizeSongs(list){ //格式化歌曲数据
         let ret=[];
         for(var i=0;i<list.length;i++){
           var musicData=list[i].musicData;
