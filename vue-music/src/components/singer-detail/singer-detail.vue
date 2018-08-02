@@ -90,17 +90,17 @@
   line-height: 100%;
 }
   .singer-enter-active{
-    animation: fold-in .1s;
+    animation: fold-in .2s;
   }
   .singer-leave-active{
-    animation: fold-out .1s;
+    animation: fold-out .2s;
   }
 @keyframes fold-in {
   0% {
-    transform: translate3d(0, 100%, 0);
+    transform: translate3d(100%,0 , 0);
   }
   50% {
-    transform: translate3d(0, 50%, 0);
+    transform: translate3d(50%,0,  0);
   }
   100% {
     transform: translate3d(0, 0, 0);
@@ -111,10 +111,10 @@
     transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(0, 50%, 0);
+    transform: translate3d(-50%,0,  0);
   }
   100% {
-    transform: translate3d(0, 100%, 0);
+    transform: translate3d(-100%,0,  0);
   }
 }
 </style>

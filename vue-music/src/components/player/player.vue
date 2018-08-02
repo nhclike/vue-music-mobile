@@ -1,73 +1,77 @@
 <template>
-	<div class="player" v-show="playList.length">
-    <div class="normal-player" v-show="fullScreen">
-      <div class="background">
-        <img :src="currentSong.image" alt="" width="100%" height="100%">
-      </div>
-      <div class="top">
-        <div class="back" @click="back">
-          <i class="icon-back"></i>
+	<div class="player" v-show="playList.length>0">
+    <transition name="normal">
+      <div class="normal-player" v-show="fullScreen">
+        <div class="background">
+          <img :src="currentSong.image" alt="" width="100%" height="100%">
         </div>
-        <h1 class="title">{{currentSong.name}}</h1>
-        <h2 class="subtitle">{{currentSong.singer}}</h2>
-      </div>
-      <div class="middle">
-        <div class="middle-l">
-          <div class="cd-wrapper">
-            <div class="cd">
-              <img :src="currentSong.image" class="image" alt="">
+        <div class="top">
+          <div class="back" @click="back">
+            <i class="icon-back"></i>
+          </div>
+          <h1 class="title">{{currentSong.name}}</h1>
+          <h2 class="subtitle">{{currentSong.singer}}</h2>
+        </div>
+        <div class="middle">
+          <div class="middle-l">
+            <div class="cd-wrapper">
+              <div class="cd">
+                <img :src="currentSong.image" class="image" alt="">
 
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom">
+          <div class="dot-wrapper">
+
+          </div>
+          <div class="progress-wrapper">
+
+          </div>
+          <div class="operators">
+            <div class="icon i-left">
+              <i class="icon-sequence"></i>
+            </div>
+            <div class="icon i-left">
+              <i class="icon-prev"></i>
+            </div>
+            <div class="icon i-center">
+              <i class="icon-play"></i>
+            </div>
+            <div class="icon i-right">
+              <i class="icon-next"></i>
+            </div>
+            <div class="icon i-right">
+              <i class="icon-not-favorite"></i>
             </div>
           </div>
         </div>
       </div>
-      <div class="bottom">
-        <div class="dot-wrapper">
-
+    </transition>
+    <transition name="mini">
+      <div class="mini-player" v-show="!fullScreen" @click="open">
+        <div class="icon">
+          <img :src="currentSong.image" width="40" height="40">
         </div>
-        <div class="progress-wrapper">
-
+        <div class="text">
+          <h2 class="name" >{{currentSong.name}}</h2>
+          <p class="desc">{{currentSong.singer}}</p>
         </div>
-        <div class="operators">
-          <div class="icon i-left">
-            <i class="icon-sequence"></i>
-          </div>
-          <div class="icon i-left">
-            <i class="icon-prev"></i>
-          </div>
-          <div class="icon i-center">
-            <i class="icon-play"></i>
-          </div>
-          <div class="icon i-right">
-            <i class="icon-next"></i>
-          </div>
-          <div class="icon i-right">
-            <i class="icon-not-favorite"></i>
-          </div>
+        <div class="control">
+        </div>
+        <div class="control">
+          <i class="icon-playlist"></i>
         </div>
       </div>
-    </div>
-    <div class="mini-player" v-show="!fullScreen" @click="open">
-      <div class="icon">
-        <img :src="currentSong.image" width="40" height="40">
-      </div>
-      <div class="text">
-        <h2 class="name" >{{currentSong.name}}</h2>
-        <p class="desc">{{currentSong.singer}}</p>
-      </div>
-      <div class="control">
+    </transition>
 
-      </div>
-      <div class="control">
-        <i class="icon-playlist"></i>
-      </div>
-    </div>
 	</div>
 </template>
 
 <script type="text/ecmascript-6">
   import {mapGetters,mapMutations} from 'vuex';
-
+  import animations from 'create-keyframe-animation';
   export default {
     data(){
       return {}
@@ -80,15 +84,15 @@
       ])
     },
     created(){
-
+      console.log('created');
     },
     mounted(){
-      setTimeout(()=>{
-        //console.log(this.fullScreen);
-        //console.log(this.playList);
-      },1000)
+      console.log('mounted');
+
     },
     updated(){ //updated之后才可以打印出来vuex中变量改变的值
+      console.log('updated');
+
       setTimeout(()=>{
         //console.log(this.fullScreen);
         //console.log(this.playList);
@@ -125,6 +129,25 @@
       z-index: 150;
       background:@color-background;
       color:#fff;
+      /*动画效果实现*/
+      &.normal-enter-active,&.normal-leave-active{
+        transition: all 1s;
+        .top,.bottom{
+          transition: all 1s;
+        }
+      }
+      &.normal-enter,&.normal-leave-to{
+        opacity: 0;
+/*
+        transform: translateY(100%);
+*/
+        .top{
+          transform: translateY(-100px);
+        }
+        .bottom{
+          transform: translateY(100px);
+        }
+      }
       .background{
         position: absolute;
         top:0;
@@ -279,4 +302,12 @@
     }
   }
 
+
+
+ .mini-enter-active,.mini-leave-active{
+    transition: all 0.5s;
+  }
+  .mini-enter,.mini-leave-to{
+    opacity: 0;
+  }
 </style>
