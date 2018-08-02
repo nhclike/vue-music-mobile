@@ -19,8 +19,8 @@
         </div>
         <div class="middle">
           <div class="middle-l">
-            <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+            <div class="cd-wrapper" ref="cdWrapper" >
+              <div class="cd" :class="addCls">
                 <img :src="currentSong.image" class="image" alt="">
 
               </div>
@@ -42,7 +42,7 @@
               <i class="icon-prev"></i>
             </div>
             <div class="icon i-center">
-              <i class="icon-play"></i>
+              <i  @click="togglePlay" :class="playIcon"></i>
             </div>
             <div class="icon i-right">
               <i class="icon-next"></i>
@@ -56,7 +56,7 @@
     </transition>
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
-        <div class="icon">
+        <div class="icon" :class="addCls">
           <img :src="currentSong.image" width="40" height="40">
         </div>
         <div class="text">
@@ -64,13 +64,15 @@
           <p class="desc">{{currentSong.singer}}</p>
         </div>
         <div class="control">
+          <i @click.stop="togglePlay" :class="miniPlayIcon"></i>
+
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-
+    <audio :src="currentSong.url" ref="audio"></audio>
 	</div>
 </template>
 
@@ -88,19 +90,28 @@
       ...mapGetters([  //获取暴露出vuex中的变量
         'fullScreen',
         'playList',
-        'currentSong'
-      ])
+        'currentSong',
+        'playing'
+      ]),
+      playIcon(){
+        return this.playing?'icon-play':'icon-pause'
+      },
+      miniPlayIcon(){
+        return this.playing?'icon-play-mini':'icon-pause-mini'
+      },
+      addCls(){
+        return this.playing?'play':'play pause'
+      }
     },
     created(){
-      console.log('created');
+     // console.log('created');
     },
     mounted(){
-      console.log('mounted');
+     // console.log('mounted');
 
     },
     updated(){ //updated之后才可以打印出来vuex中变量改变的值
-      console.log('updated');
-
+      //console.log('updated');
       setTimeout(()=>{
         //console.log(this.fullScreen);
         //console.log(this.playList);
@@ -115,7 +126,7 @@
         this.setFullScreen(true);
       },
       enter(el, done) { //利用钩子函数动态操作动画
-        /*const {x, y, scale} = this._getPosAndScale();
+        const {x, y, scale} = this._getPosAndScale();
 
         let animation = {
           0: {
@@ -138,21 +149,21 @@
           }
         });
 
-        animations.runAnimation(this.$refs.cdWrapper, 'move', done)*/
+        animations.runAnimation(this.$refs.cdWrapper, 'move', done)
       },
       afterEnter() {
-        /*animations.unregisterAnimation('move');
-        this.$refs.cdWrapper.style.animation = ''*/
+        animations.unregisterAnimation('move');
+        this.$refs.cdWrapper.style.animation = ''
       },
       leave(el, done) {
-        /*this.$refs.cdWrapper.style.transition = 'all 0.4s';
+        this.$refs.cdWrapper.style.transition = 'all 0.4s';
         const {x, y, scale} = this._getPosAndScale();
         this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`;
-        this.$refs.cdWrapper.addEventListener('transitionend', done)*/
+        this.$refs.cdWrapper.addEventListener('transitionend', done)
       },
       afterLeave() {
-        /*this.$refs.cdWrapper.style.transition = '';
-        this.$refs.cdWrapper.style[transform] = '';*/
+        this.$refs.cdWrapper.style.transition = '';
+        this.$refs.cdWrapper.style[transform] = '';
       },
       _getPosAndScale() {
         const targetWidth = 40;
@@ -169,11 +180,37 @@
           scale
         }
       },
+      togglePlay(){
+        console.log('togglePlay');
+        if(this.playing){
+          this.setPlayingState(false);
+        }
+        else{
+          this.setPlayingState(true);
+        }
+      },
       ...mapMutations( //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
-          setFullScreen:'SET_FULL_SCREEN'
+          setFullScreen:'SET_FULL_SCREEN',
+          setPlayingState:'SET_PLAYING_STATE'
         }
       )
+    },
+    watch:{
+      currentSong(){ //监听当前歌曲信息的变化
+        this.$nextTick(()=>{
+          //dom元素更新后执行，此时能拿到audio元素的属性
+          this.$refs.audio.play();
+
+        })
+      },
+      playing(newPlay){  //监听当前的播放状态
+        console.log(newPlay);
+        this.$nextTick(()=>{
+          newPlay? this.$refs.audio.play():this.$refs.audio.pause()
+        })
+
+      }
     }
   }
 </script>
@@ -201,9 +238,6 @@
       }
       &.normal-enter,&.normal-leave-to{
         opacity: 0;
-/*
-        transform: translateY(100%);
-*/
         .top{
           transform: translateY(-100px);
         }
@@ -275,8 +309,14 @@
               width: 100%;
               height: 100%;
               box-sizing: border-box;
-              border: 10px solid rgba(255,255,255,0.1);
+              border: 10px solid rgba(255,255,255,.1);
               border-radius: 50%;
+              &.play{
+                  animation:rotate  20s linear infinite;
+               }
+              &.pause{
+                 animation-play-state:paused;
+               }
               img{
                 position: absolute;
                 top:0;
@@ -300,6 +340,7 @@
           .icon{
             flex:1;
             color:@color-theme;
+
             &.i-left{
               text-align: right;
               i{
@@ -337,6 +378,12 @@
         padding: 0 10px 0 20px;
         width: 40px;
         flex:0 0 40px;  /*有多余空间也不放大，挤压也不缩小，固定占据空间40px*/
+        &.play{
+           animation:rotate  20s linear infinite;
+         }
+        &.pause{
+           animation-play-state:paused;
+         }
         img{
           border-radius: 50%;
         }
@@ -357,10 +404,11 @@
         flex:0 0 30px;  /*有多余空间也不放大，挤压也不缩小，固定占据空间30px*/
         width: 30px;
         padding: 0 10px;
-        .icon-playlist{
+        .icon-play-mini, .icon-pause-mini,.icon-playlist{
           font-size: 30px;
           color:@color-theme-d
         }
+
       }
     }
   }
@@ -372,5 +420,14 @@
   }
   .mini-enter,.mini-leave-to{
     opacity: 0;
+  }
+  @keyframes rotate {
+    0% {
+      transform: rotate(0);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>
