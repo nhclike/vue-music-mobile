@@ -34,7 +34,7 @@
           <div class="progress-wrapper">
             <span class="time time-l"> {{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-
+              <progress-bar :percent="percent" ></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
@@ -84,14 +84,18 @@
   import {mapGetters,mapMutations} from 'vuex';
   import animations from 'create-keyframe-animation';
   import {prefixStyle} from '@/common/js/dom';
+  import ProgressBar from '@/base/progress-bar/progress-bar'
   const transform = prefixStyle('transform');
   const transitionDuration = prefixStyle('transitionDuration');
   export default {
     data(){
       return {
         songReady:false,
-        currentTime:0
+        currentTime:0,
       }
+    },
+    components:{
+      ProgressBar
     },
     computed:{
       ...mapGetters([  //获取暴露出vuex中的变量
@@ -113,6 +117,11 @@
       },
       disableCls(){
         return this.songReady?'':'disable'
+      },
+      percent(){
+        let percent=parseFloat(this.currentTime/this.currentSong.duration);
+
+        return percent>0?percent:0
       }
     },
     created(){
@@ -282,7 +291,7 @@
         })
       },
       playing(newPlay){  //监听当前的播放状态
-        console.log(newPlay);
+        //console.log(newPlay);
         this.$nextTick(()=>{
           newPlay? this.$refs.audio.play():this.$refs.audio.pause()
         })
@@ -385,6 +394,7 @@
           width: 100%;
           height: 0;
           padding-top: 80%;
+          /*旋转CD*/
           .cd-wrapper{
             position: absolute;
             top:0;
@@ -397,6 +407,7 @@
               box-sizing: border-box;
               border: 10px solid rgba(255,255,255,.1);
               border-radius: 50%;
+             /*旋转CD动画*/
               &.play{
                   animation:rotate  20s linear infinite;
                }
@@ -420,6 +431,25 @@
         bottom: 50px;
         left: 0;
         width: 100%;
+        /*进度条*/
+        .progress-wrapper{
+          display: flex;
+          align-items: center;
+          width:80%;
+          margin:0 auto;
+          .time{
+            flex: 0 0 30px;
+            height: 30px;
+            line-height: 30px;
+            color: @color-text;
+            font-size: @font-size-small;
+            width: 30px;
+          }
+          .progress-bar-wrapper{
+            flex: 1;
+          }
+
+        }
         .operators{
           display: flex;
           align-items:center;
