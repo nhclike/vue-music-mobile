@@ -32,20 +32,24 @@
 
           </div>
           <div class="progress-wrapper">
+            <span class="time time-l"> {{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
 
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
             <div class="icon i-left">
-              <i class="icon-prev"></i>
+              <i class="icon-prev" @click="prev" :class="disableCls"></i>
             </div>
             <div class="icon i-center">
               <i  @click="togglePlay" :class="playIcon"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon-next"></i>
+              <i class="icon-next" @click="next" :class="disableCls"></i>
             </div>
             <div class="icon i-right">
               <i class="icon-not-favorite"></i>
@@ -72,7 +76,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
 	</div>
 </template>
 
@@ -84,16 +88,21 @@
   const transitionDuration = prefixStyle('transitionDuration');
   export default {
     data(){
-      return {}
+      return {
+        songReady:false,
+        currentTime:0
+      }
     },
     computed:{
       ...mapGetters([  //获取暴露出vuex中的变量
         'fullScreen',
         'playList',
         'currentSong',
-        'playing'
+        'playing',
+        'currentIndex'
       ]),
       playIcon(){
+        //console.log(this.playing);
         return this.playing?'icon-play':'icon-pause'
       },
       miniPlayIcon(){
@@ -101,6 +110,9 @@
       },
       addCls(){
         return this.playing?'play':'play pause'
+      },
+      disableCls(){
+        return this.songReady?'':'disable'
       }
     },
     created(){
@@ -108,7 +120,6 @@
     },
     mounted(){
      // console.log('mounted');
-
     },
     updated(){ //updated之后才可以打印出来vuex中变量改变的值
       //console.log('updated');
@@ -127,7 +138,9 @@
       },
       enter(el, done) { //利用钩子函数动态操作动画
         const {x, y, scale} = this._getPosAndScale();
-
+        const obj=this._getPosAndScale();
+        //console.log(obj);
+        //console.log(x);
         let animation = {
           0: {
             transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
@@ -181,7 +194,7 @@
         }
       },
       togglePlay(){
-        console.log('togglePlay');
+        //console.log('togglePlay');
         if(this.playing){
           this.setPlayingState(false);
         }
@@ -189,19 +202,83 @@
           this.setPlayingState(true);
         }
       },
+      prev(){
+        if(!this.songReady){ //歌曲信息没准备好
+          return;
+        }
+        //console.log('prev song');
+
+        let index=this.currentIndex+1;
+        if(index==this.playList.length){
+          index=0;
+        }
+
+        this.setCurrentIndex(index);
+        let playS=this.playing;  //点击下首歌时候先判断下当前播放状态，当前是暂停的场景下点击下首歌则先将播放状态改为暂停
+
+        if(!playS){
+          this.togglePlay()
+        }
+        this.songReady=false;
+      },
+      next(){
+        //console.log('next song')
+        if(!this.songReady){ //歌曲信息没准备好
+          return;
+        }
+        let index=this.currentIndex-1;
+        if(index==-1){
+          index=this.playList.length-1;
+        }
+        this.setCurrentIndex(index);
+        let playS=this.playing;  //点击下首歌时候先判断下当前播放状态，当前是暂停的场景下点击下首歌则先将播放状态改为暂停
+
+        if(!playS){
+          this.togglePlay()
+        }
+        this.songReady=false;
+
+      },
+      ready(){
+        //console.log('canplay')
+        this.songReady=true;  //歌曲准备好了
+      },
+      error(){
+        this.songReady=true;  //歌曲准备好了
+
+      },
+      updateTime(e){
+        //console.log(e.target.currentTime);
+        this.currentTime=e.target.currentTime;
+      },
+      format(interval){  //时间格式化成时分秒
+        interval=Math.floor(interval);
+        const minute=parseInt(interval/60);
+        const second=this.addZero(parseInt(interval%60));
+        return `${minute}:${second}`
+      },
+      addZero(num,n=2){ //补0操作
+        var len=num.toString().length;
+        while (len<n){
+          num='0'+num;
+          len++;
+        }
+        return num
+      },
       ...mapMutations( //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
           setFullScreen:'SET_FULL_SCREEN',
-          setPlayingState:'SET_PLAYING_STATE'
+          setPlayingState:'SET_PLAYING_STATE',
+          setCurrentIndex:'SET_CURRENT_INDEX'
         }
       )
     },
+
     watch:{
       currentSong(){ //监听当前歌曲信息的变化
         this.$nextTick(()=>{
-          //dom元素更新后执行，此时能拿到audio元素的属性
+          //dom元素更新后执行，此时能拿到audio元素的属性,调播放的方法并且改变播放状态为true
           this.$refs.audio.play();
-
         })
       },
       playing(newPlay){  //监听当前的播放状态
@@ -213,6 +290,15 @@
       }
     }
   }
+ /* 逻辑梳理
+ * 1只要currentSong发生改变就调play
+ * 2只要进入播放页面，不管从什么地方进入都会提交actions.js中的selectPlay其中会设置playing为true，
+ * 也会设置currentIndex因为currentSong是根据currentIndex计算出来的所以currentSong与此同时也会改变
+ * 从而确保了进入player时vuex中的playing与页面实际播放状态一致
+ * 3点击下首或者上首时提交vuex中的currentIndex,同时引起currentSong改变，调用play,也就是无论点击前进后退都会触发页面调用play方法，
+ * 如果在暂停的场景下前进后退会导致页面调了play()开始播放但是vuex中的playing还是之前的false，此时需要改变vuex中的playing为true
+ *
+ * */
 </script>
 
 <style scoped lang="less">
@@ -340,7 +426,9 @@
           .icon{
             flex:1;
             color:@color-theme;
-
+            i.disable{
+                color:gray;
+             }
             &.i-left{
               text-align: right;
               i{

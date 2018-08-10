@@ -85,7 +85,7 @@
         this.scrollY=pos.y;
       },
       back(){
-        console.log(this.$router);
+        //console.log(this.$router);
         this.$router.back()
       },
       random(){

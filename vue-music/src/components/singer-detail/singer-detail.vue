@@ -52,7 +52,7 @@
               let singerData=res.data;
               let songList=singerData.list;
               this.songs=me._normalizeSongs(songList);
-              console.log(songList);
+              //console.log(songList);
 
             }
           })

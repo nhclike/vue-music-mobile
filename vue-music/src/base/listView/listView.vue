@@ -151,14 +151,14 @@
       diff(newVal){ //监听2个导航栏相遇时中间差
         //console.log(newVal);
         let fixtop=newVal>0 && newVal<TITLE_HEIGHT? newVal-TITLE_HEIGHT:0;
-        console.log(this.fixtop);
-        console.log(fixtop);
+        //console.log(this.fixtop);
+        //console.log(fixtop);
         if(this.fixtop===fixtop){
           return ;
         }
         else{
           this.fixtop=fixtop;
-          console.log(this.$refs.fixed)
+          //console.log(this.$refs.fixed)
           this.$refs.fixed.style.transform=`translateY(${fixtop}px)`
         }
       }
