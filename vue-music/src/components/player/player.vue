@@ -34,7 +34,7 @@
           <div class="progress-wrapper">
             <span class="time time-l"> {{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent" ></progress-bar>
+              <progress-bar :percent="percent" @percentChange="percentChange"></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
@@ -274,7 +274,14 @@
         }
         return num
       },
-      ...mapMutations( //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
+      percentChange(pre){      //监听到pregress-bar组件拖动改变播放进度事件
+        console.log(pre);
+        this.$refs.audio.currentTime=this.currentSong.duration*pre;
+        if(!this.playing){     //在暂停的状态拖动后让其播放
+          this.togglePlay();
+        }
+      },
+      ...mapMutations(        //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
           setFullScreen:'SET_FULL_SCREEN',
           setPlayingState:'SET_PLAYING_STATE',
