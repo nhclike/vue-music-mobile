@@ -52,14 +52,17 @@
         const  deltaX=e.touches[0].pageX-this.touch.startX;
         const offsetWidth=Math.min(Math.max(0,this.touch.left+deltaX),this.$refs.progressBar.clientWidth-progressBtnWidth);
         this._offset(offsetWidth)
-
       },
       progressTouchEnd(e){
         this.touch.initiated=false;  //拖动结束后监听precent又会this._offset(offsetWidth);使得其回到原来正常的位置
         this._triggerPercent();      //向外面派发出事件改变播放进度
       },
       progressClick(e){
-        this._offset(e.offsetX);
+        const rect = this.$refs.progressBar.getBoundingClientRect();  //返回的是元素的top.left.right.bottom构成的对象
+        const offsetWidth = e.pageX - rect.left;
+        this._offset(offsetWidth);
+        // 这里当我们点击 progressBtn 的时候，e.offsetX 获取不对
+        // this._offset(e.offsetX)
         this._triggerPercent();
 
       },

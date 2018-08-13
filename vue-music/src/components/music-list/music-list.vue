@@ -89,7 +89,10 @@
         this.$router.back()
       },
       random(){
-
+       // console.log('random');
+        this.randomPlay({
+          list:this.songs
+        })
       },
       selectItem(song,index){
         //console.log(song);
@@ -100,7 +103,8 @@
         })
       },
       ...mapActions([  //暴露出actions中的方法，作为方法直接调用
-        'selectPlay'
+        'selectPlay',
+        'randomPlay'
       ])
     },
     watch:{
@@ -194,6 +198,7 @@
         position: absolute;
         bottom:20px;
         width: 100%;
+        z-index:50;
         .play{
 
           text-align: center;

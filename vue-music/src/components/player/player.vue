@@ -40,7 +40,7 @@
           </div>
           <div class="operators">
             <div class="icon i-left">
-              <i class="icon-sequence"></i>
+              <i :class="iconMode" @click="changeMode"></i>
             </div>
             <div class="icon i-left">
               <i class="icon-prev" @click="prev" :class="disableCls"></i>
@@ -68,15 +68,16 @@
           <p class="desc">{{currentSong.singer}}</p>
         </div>
         <div class="control">
-          <i @click.stop="togglePlay" :class="miniPlayIcon"></i>
-
+          <progress-circle :radius="radius" :percent="percent">
+            <i @click.stop="togglePlay" :class="miniPlayIcon" class="icon-mini"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @ended="end" @timeupdate="updateTime"></audio>
 	</div>
 </template>
 
@@ -85,17 +86,24 @@
   import animations from 'create-keyframe-animation';
   import {prefixStyle} from '@/common/js/dom';
   import ProgressBar from '@/base/progress-bar/progress-bar'
+  import ProgressCircle from '@/base/progress-circle/progress-circle';
+  import {playMode} from '@/common/js/config.js';
+  import {shuffle} from '@/common/js/util.js'
+
   const transform = prefixStyle('transform');
+
   const transitionDuration = prefixStyle('transitionDuration');
   export default {
     data(){
       return {
         songReady:false,
         currentTime:0,
+        radius:32
       }
     },
     components:{
-      ProgressBar
+      ProgressBar,
+      ProgressCircle
     },
     computed:{
       ...mapGetters([  //获取暴露出vuex中的变量
@@ -103,7 +111,9 @@
         'playList',
         'currentSong',
         'playing',
-        'currentIndex'
+        'currentIndex',
+        'mode',
+        'sequenceList'
       ]),
       playIcon(){
         //console.log(this.playing);
@@ -114,6 +124,9 @@
       },
       addCls(){
         return this.playing?'play':'play pause'
+      },
+      iconMode(){
+        return this.mode===playMode.sequence?'icon-sequence':this.mode===playMode.loop?'icon-loop':'icon-random'
       },
       disableCls(){
         return this.songReady?'':'disable'
@@ -222,7 +235,7 @@
           index=0;
         }
 
-        this.setCurrentIndex(index);
+        this.setCurrentIndex(index);   //vuex中index改变currentSong就会改变，调play()
         let playS=this.playing;  //点击下首歌时候先判断下当前播放状态，当前是暂停的场景下点击下首歌则先将播放状态改为暂停
 
         if(!playS){
@@ -256,6 +269,17 @@
         this.songReady=true;  //歌曲准备好了
 
       },
+      end(){
+        if(this.mode===playMode.loop){
+          this.loop();
+        }else{
+          this.next()
+        }
+      },
+      loop(){
+        this.$refs.audio.currentTime=0;
+        this.$refs.audio.play();
+      },
       updateTime(e){
         //console.log(e.target.currentTime);
         this.currentTime=e.target.currentTime;
@@ -281,17 +305,45 @@
           this.togglePlay();
         }
       },
+      changeMode(){
+        const mode=(this.mode+1)%3;
+        this.setPlayMode(mode);
+        let List=null;
+        if(mode===playMode.random){
+          List=shuffle(this.sequenceList);
+
+        }else{
+          List=this.sequenceList;
+        }
+        this._resetCurrentIndex(List);
+
+        this.setPlayList(List);
+      },
+      _resetCurrentIndex(list){
+          //console.log(this.currentSong);
+        let index=list.findIndex((item)=>{
+          //console.log(item)
+          return item.id===this.currentSong.id;
+
+        });
+        this.setCurrentIndex(index);
+      },
       ...mapMutations(        //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
           setFullScreen:'SET_FULL_SCREEN',
           setPlayingState:'SET_PLAYING_STATE',
-          setCurrentIndex:'SET_CURRENT_INDEX'
+          setCurrentIndex:'SET_CURRENT_INDEX',
+          setPlayMode:'SET_PLAY_MODE',
+          setPlayList:'SET_PLAYLIST'
         }
       )
     },
 
     watch:{
-      currentSong(){ //监听当前歌曲信息的变化
+      currentSong(newSong,oldSong){ //监听当前歌曲信息的变化            //id不变不执行play()
+        if(newSong.id===oldSong.id){
+          return ;
+        }
         this.$nextTick(()=>{
           //dom元素更新后执行，此时能拿到audio元素的属性,调播放的方法并且改变播放状态为true
           this.$refs.audio.play();
@@ -533,7 +585,12 @@
           font-size: 30px;
           color:@color-theme-d
         }
-
+        .icon-mini{
+          font-size: 32px;
+          position: absolute;
+          top:0;
+          left: 0;
+        }
       }
     }
   }
