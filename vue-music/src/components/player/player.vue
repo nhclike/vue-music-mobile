@@ -89,7 +89,7 @@
   import ProgressCircle from '@/base/progress-circle/progress-circle';
   import {playMode} from '@/common/js/config.js';
   import {shuffle} from '@/common/js/util.js'
-
+  import Lyric from 'lyric-parser'
   const transform = prefixStyle('transform');
 
   const transitionDuration = prefixStyle('transitionDuration');
@@ -98,7 +98,8 @@
       return {
         songReady:false,
         currentTime:0,
-        radius:32
+        radius:32,
+        currentLyric:''
       }
     },
     components:{
@@ -139,6 +140,7 @@
     },
     created(){
      // console.log('created');
+
     },
     mounted(){
      // console.log('mounted');
@@ -328,6 +330,12 @@
         });
         this.setCurrentIndex(index);
       },
+      _getLyric(){
+        this.currentSong.getLyric().then((lyric)=>{
+          this.currentLyric=new Lyric(lyric);
+          console.log(this.currentLyric);
+        })
+      },
       ...mapMutations(        //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
           setFullScreen:'SET_FULL_SCREEN',
@@ -347,6 +355,12 @@
         this.$nextTick(()=>{
           //dom元素更新后执行，此时能拿到audio元素的属性,调播放的方法并且改变播放状态为true
           this.$refs.audio.play();
+
+          //this.currentSong.getLyric(); //调用获取歌词的方法
+
+          //console.log(newSong.lyric);  //此时直接console.log会发现为undefined因为getLyric中发送的请求为异步，请求回来后才有值
+                                          //解决方案：让getLyric返回一个Promise
+          this._getLyric();
         })
       },
       playing(newPlay){  //监听当前的播放状态
