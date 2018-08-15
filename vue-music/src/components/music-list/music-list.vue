@@ -30,11 +30,13 @@
   import Scroll from '@/base/scroll/scroll'
   import {prefixStyle} from '@/common/js/dom.js'
   import {mapActions} from 'vuex'  //action中定义一次改变vuex中多个变量的方法
+  import {playlistMixin} from '@/common/js/mixin.js'
   const RESERVED_HEIGHT=40;
   //根据浏览器自动加前缀
   const transform=prefixStyle('transform');
   const backdrop=prefixStyle('backdrop-filter');
   export default {
+    mixins: [playlistMixin],
     props:{
       songs:{
         type:Array,
@@ -81,6 +83,11 @@
       }
     },
     methods:{
+      handlePlaylist(playlist) {
+        const bottom = playlist.length > 0 ? '60px' : ''
+        this.$refs.list.$el.style.bottom = bottom
+        this.$refs.list.refresh()
+      },
       scroll(pos){
         this.scrollY=pos.y;
       },

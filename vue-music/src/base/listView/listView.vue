@@ -36,8 +36,12 @@
   import Scroll from '@/base/scroll/scroll.vue'
   import Loading from '@/base/loading/loading.vue'
   import {getData} from '@/common/js/dom.js'
+  import {playlistMixin} from '@/common/js/mixin.js'
+
   const TITLE_HEIGHT=30;
   export default {
+    mixins: [playlistMixin],
+
     props:{
       data:{
         type:Array,
@@ -76,6 +80,11 @@
       Loading
     },
     methods:{
+      handlePlaylist(playlist) {
+        const bottom = playlist.length > 0 ? '60px' : '';
+        this.$refs.listview.$el.style.bottom = bottom;
+        this.$refs.listview.refresh();
+      },
       onShortCutTouchStart(e){
         let achorIndex=getData(e.target,'index');
         let firstTouch=e.touches[0].pageY;

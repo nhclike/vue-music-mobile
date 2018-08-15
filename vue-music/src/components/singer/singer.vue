@@ -15,7 +15,9 @@
   import Singer from '@/common/js/singer'
   import { mapMutations } from 'vuex'
   import ListView from '@/base/listView/listView'
+
   export default {
+
     data(){
       return {
           singers:[]
