@@ -1,6 +1,6 @@
 <template>
-  <div class="singer">
-    <list-view :data="singers" @itemClick="singerClick">
+  <div class="singer" ref="singer">
+    <list-view :data="singers" @itemClick="singerClick" ref="list">
 
     </list-view>
     <router-view></router-view>
@@ -15,8 +15,10 @@
   import Singer from '@/common/js/singer'
   import { mapMutations } from 'vuex'
   import ListView from '@/base/listView/listView'
+  import {playlistMixin} from '@/common/js/mixin.js'
 
   export default {
+    mixins: [playlistMixin],
 
     data(){
       return {
@@ -35,6 +37,12 @@
 
     },
     methods:{
+        handlePlaylist(playlist) {
+          const bottom = playlist.length > 0 ? '60px' : '';
+          this.$refs.singer.style.bottom = bottom;
+          this.$refs.list.refresh()
+
+        },
         _getSingerList(){
           getSingerList().then((response)=>{
               if(response.code==ERR_OK){

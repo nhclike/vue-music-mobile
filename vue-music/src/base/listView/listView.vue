@@ -36,11 +36,9 @@
   import Scroll from '@/base/scroll/scroll.vue'
   import Loading from '@/base/loading/loading.vue'
   import {getData} from '@/common/js/dom.js'
-  import {playlistMixin} from '@/common/js/mixin.js'
 
   const TITLE_HEIGHT=30;
   export default {
-    mixins: [playlistMixin],
 
     props:{
       data:{
@@ -80,11 +78,7 @@
       Loading
     },
     methods:{
-      handlePlaylist(playlist) {
-        const bottom = playlist.length > 0 ? '60px' : '';
-        this.$refs.listview.$el.style.bottom = bottom;
-        this.$refs.listview.refresh();
-      },
+
       onShortCutTouchStart(e){
         let achorIndex=getData(e.target,'index');
         let firstTouch=e.touches[0].pageY;
@@ -98,6 +92,9 @@
         let delData=(this.touch.y2-this.touch.y1)/18 | 0;
         let achorIndex=Number(this.touch.achorIndex)+delData;
         this.scrollTo(achorIndex)
+      },
+      refresh() {
+        this.$refs.listview.refresh()
       },
       scroll(pos){ //监听到的滚动组件派发的滚动事件
         this.scrollY=pos.y;
