@@ -4,9 +4,9 @@
 import {commonParams} from './config'
 
 import axios from 'axios'
-
+//拿到歌词数据
 export  function getLyric(mid) {
-
+  //const url='https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
   const url='/api/lyric';
   const data=Object.assign({}, commonParams,{
     songmid: mid,

@@ -21,6 +21,9 @@ const mututations={
   },
   [types.SET_CURRENT_INDEX](state,index){
     state.currentIndex=index
+  },
+  [types.SET_DISC](state,list){
+    state.disc=list
   }
 };
 
