@@ -8,7 +8,8 @@ import Rank from '@/components/rank/rank'
 import Search from '@/components/search/search'
 import SingerDetail from '@/components/singer-detail/singer-detail'
 import Disc from '@/components/disc/disc'
-Vue.use(Router)
+import TopList from '@/components/top-list/top-list'
+Vue.use(Router);
 
 export default new Router({
   routes: [
@@ -48,7 +49,11 @@ export default new Router({
     },
     {
       path: '/rank',
-      component: Rank
+      component: Rank,
+      children:[{
+        path:'toplist',
+        component:TopList
+      }]
     },
     {
       path: '/search',
