@@ -1,6 +1,6 @@
 <template>
 	<div>
-    <music-list :songs="songs" :bgImage="bgImage" :title="title"></music-list>
+    <music-list :rank="true" :songs="songs" :bgImage="bgImage" :title="title"></music-list>
 	</div>
 </template>
 
@@ -36,7 +36,12 @@
     methods:{
       _getSongList(){
         //console.log(this.topList)
-        getMusicList().then((res)=>{
+        if(!this.topList.id){
+          this.$router.push({path:'/rank'});
+
+          return
+        }
+        getMusicList(this.topList.id).then((res)=>{
           if(res.code==ERR_OK){
             let songlist=res.songlist;
             this.songs=this._normalSongList(songlist);

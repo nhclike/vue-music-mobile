@@ -40,6 +40,7 @@
     methods:{
       _getSongList(){
         if(!this.disc.dissid){
+          this.$router.push({path:'/recommend'});
           return
         }
         let me=this;

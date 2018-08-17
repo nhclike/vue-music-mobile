@@ -18,7 +18,7 @@
     </div>
     <scroll :data="songs" class="list" ref="list" :probeType="probeType" :listenScroll="listenScroll" @scroll="scroll">
       <div class="song-list-wrapper">
-        <song-list :songs="songs" @selectItem="selectItem"></song-list>
+        <song-list :rank="rank" :songs="songs" @selectItem="selectItem"></song-list>
 
       </div>
     </scroll>
@@ -38,6 +38,10 @@
   export default {
     mixins: [playlistMixin],
     props:{
+      rank:{
+        type:Boolean,
+        default:false
+      },
       songs:{
         type:Array,
         default:[]
