@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="search-result">
-      <suggest></suggest>
+      <suggest :query="queryStr" :showSinger="showSinger"></suggest>
     </div>
 
   </div>
@@ -38,14 +38,17 @@
 
 <script  type="text/ecmascript-6">
   import SearchBox from '@/base/search-box/search-box'
- // import SearchList from '@/base/search-list/search-list'
+
+  import SearchList from '@/base/search-list/search-list'
   import Suggest from '@/components/suggest/suggest'
   import {getHotKey} from '@/api/search'
   import {ERR_OK} from '@/api/config'
   export default {
     data(){
       return {
-        hotKey:[]
+        hotKey:[],
+        queryStr:'',
+        showSinger:true
       }
     },
     components:{
@@ -61,12 +64,13 @@
         this.$refs.searchBox.setQuery(k);
       },
       query(query){
-        console.log(query)
+        this.queryStr=query
+        //console.log(query)
       },
       _getHotKey(){
         getHotKey().then((res)=>{
           if(res.code===ERR_OK){
-             console.log(res);
+             //console.log(res);
              this.hotKey=res.data.hotkey.slice(0,10)
           }
         })
