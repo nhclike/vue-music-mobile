@@ -1,5 +1,5 @@
 <template>
-	<div class="search-list" v-show="searches.length">
+	<div class="search-list">
     <ul>
       <li class="search-item">
         <span class="text">qweqweqweqwe</span>

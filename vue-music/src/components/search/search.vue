@@ -1,8 +1,7 @@
 <template>
   <div class="search">
-
     <div class="search-box-wrapper">
-      <search-box @query="query" ref="searchBox"></search-box>
+      <search-box @query="onQueryChange" ref="searchBox"></search-box>
     </div>
 
     <div class="shortcut-wrapper">
@@ -23,16 +22,13 @@
               </i>
             </span>
           </h1>
-<!--
           <search-list></search-list>
--->
         </div>
       </div>
     </div>
-    <div class="search-result">
+    <div class="search-result" v-show="queryStr">
       <suggest :query="queryStr" :showSinger="showSinger"></suggest>
     </div>
-
   </div>
 </template>
 
@@ -53,7 +49,7 @@
     },
     components:{
       SearchBox,
-      //SearchList,
+      SearchList,
       Suggest
     },
     created(){
@@ -63,7 +59,7 @@
       addQuery(k){
         this.$refs.searchBox.setQuery(k);
       },
-      query(query){
+      onQueryChange(query){
         this.queryStr=query
         //console.log(query)
       },
@@ -91,6 +87,12 @@
     width: 100%;
     .search-box-wrapper{
       margin: 20px;
+    }
+    .search-result{
+      position: fixed;
+      top:158px;
+      bottom: 0;
+      width: 100%;
     }
     .shortcut-wrapper{
       position: fixed;

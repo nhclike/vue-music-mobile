@@ -65,7 +65,7 @@
     }
     .icon-dismiss{
       font-size: 16px;
-      color: @color-background
+      color:  @color-text
     }
   }
 </style>
