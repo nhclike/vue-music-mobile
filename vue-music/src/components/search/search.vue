@@ -29,6 +29,7 @@
     <div class="search-result" v-show="queryStr">
       <suggest :query="queryStr" :showSinger="showSinger"></suggest>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 

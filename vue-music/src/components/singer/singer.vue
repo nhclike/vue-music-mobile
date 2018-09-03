@@ -99,7 +99,7 @@
           return hot.concat(ret)
       },
       singerClick(item){
-          //console.log(item);
+          console.log(item);
           this.$router.push({
             path:'/singer/detail',
             query: item
