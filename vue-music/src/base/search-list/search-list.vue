@@ -1,8 +1,8 @@
 <template>
 	<div class="search-list">
     <ul>
-      <li class="search-item">
-        <span class="text">qweqweqweqwe</span>
+      <li class="search-item" v-for="item in list">
+        <span class="text">{{item.name}}</span>
         <span class="icon">
           <i class="icon-delete"></i>
         </span>
@@ -14,7 +14,12 @@
 
 <script>
   export default {
-
+    props:{
+      list:{
+        type:Array,
+        default:[]
+      }
+    },
     data(){
       return {}
     }

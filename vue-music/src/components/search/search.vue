@@ -22,12 +22,12 @@
               </i>
             </span>
           </h1>
-          <search-list></search-list>
+          <search-list :list="searchHistory"></search-list>
         </div>
       </div>
     </div>
     <div class="search-result" v-show="queryStr">
-      <suggest :query="queryStr" :showSinger="showSinger" @listScroll="blurInput"></suggest>
+      <suggest :query="queryStr" :showSinger="showSinger" @listScroll="blurInput" @select="saveSearch"></suggest>
     </div>
     <router-view></router-view>
   </div>
@@ -40,6 +40,7 @@
   import Suggest from '@/components/suggest/suggest'
   import {getHotKey} from '@/api/search'
   import {ERR_OK} from '@/api/config'
+  import {mapActions,mapGetters} from 'vuex'
   export default {
     data(){
       return {
@@ -55,6 +56,11 @@
     },
     created(){
       this._getHotKey();
+    },
+    computed:{
+      ...mapGetters([
+        'searchHistory'
+      ])
     },
     methods:{
       addQuery(k){
@@ -74,7 +80,14 @@
              this.hotKey=res.data.hotkey.slice(0,10)
           }
         })
-      }
+      },
+      saveSearch(item){
+        //console.log(item);
+        this.saveSearchHistory(item)
+      },
+      ...mapActions([
+        'saveSearchHistory'
+      ])
     }
   }
 </script>

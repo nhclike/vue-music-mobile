@@ -77,6 +77,7 @@
       },
       selectItem(item){
         //console.log(item);
+
         if(item.type===TYPE_SINGER){
           const singer = new Singer({
             id: item.singermid,
@@ -92,6 +93,7 @@
         else{
           this.insertSong(item);
         }
+        this.$emit('select',item);
       },
       serachMore(){
         if(!this.hasMore){
@@ -199,6 +201,12 @@
 
       }
     }
+  }
+  .no-result-wrapper{
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate3D(-50%,-50%,0);
   }
 }
 </style>
