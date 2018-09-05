@@ -35,3 +35,25 @@ export function loadSearch() {
   let searches=storage.get(SEARCH_KEY,[]);
   return searches
 }
+
+//删除记录
+export function deleteSearch(query) {
+  let searches=storage.get(SEARCH_KEY,[]);
+  let delIndex=searches.findIndex((item)=>{
+    return item===query
+  });
+  //console.log(searches);
+  //console.log(delIndex);
+  if(delIndex>-1){
+    searches.splice(delIndex,1);
+  }
+
+  storage.set(SEARCH_KEY,searches);
+  return searches
+}
+
+//清空历史记录
+export function clearSearch() {
+  storage.remove(SEARCH_KEY);
+  return []
+}

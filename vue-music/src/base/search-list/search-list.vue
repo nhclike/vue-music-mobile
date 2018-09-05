@@ -1,10 +1,10 @@
 <template>
 	<div class="search-list">
     <ul>
-      <li class="search-item" v-for="item in list">
-        <span class="text">{{item.name}}</span>
-        <span class="icon">
-          <i class="icon-delete"></i>
+      <li class="search-item" @click="selectItem(item)" v-for="item in list">
+        <span class="text">{{item}}</span>
+        <span class="icon" @click.stop="delItem(item)">
+          <i class="icon-delete" ></i>
         </span>
 
       </li>
@@ -22,6 +22,14 @@
     },
     data(){
       return {}
+    },
+    methods:{
+      delItem(item){
+        this.$emit('delete',item)
+      },
+      selectItem(item){
+        this.$emit('select',item)
+      }
     }
   }
 </script>

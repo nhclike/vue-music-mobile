@@ -443,19 +443,14 @@
             offsetWidth=0;
             this.currentShow='cd';
             opacity=1;
-
-
           }
           else {
             offsetWidth=-window.innerWidth;
             opacity=0;
-
           }
         }
         this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
         this.$refs.middleL.style.opacity=opacity;
-
-
       },
       ...mapMutations(        //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
@@ -467,7 +462,6 @@
         }
       )
     },
-
     watch:{
       currentSong(newSong,oldSong){ //监听当前歌曲信息的变化            //id不变不执行play()
         if(newSong.id===oldSong.id){
@@ -479,9 +473,7 @@
         this.$nextTick(()=>{
           //dom元素更新后执行，此时能拿到audio元素的属性,调播放的方法并且改变播放状态为true
           this.$refs.audio.play();
-
           //this.currentSong.getLyric(); //调用获取歌词的方法
-
           //console.log(newSong.lyric);  //此时直接console.log会发现为undefined因为getLyric中发送的请求为异步，请求回来后才有值
                                           //解决方案：让getLyric返回一个Promise
           this._getLyric();

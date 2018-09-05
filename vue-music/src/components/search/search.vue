@@ -4,44 +4,51 @@
       <search-box @query="onQueryChange" ref="searchBox"></search-box>
     </div>
 
-    <div class="shortcut-wrapper">
-      <div>
-        <div class="hot-key">
-          <h1 class="title">热门搜索</h1>
-          <ul>
-            <li v-for="item in hotKey" class="item" @click="addQuery(item.k)">
-              <span>{{item.k}}</span>
-            </li>
-          </ul>
-        </div>
-        <div class="search-history">
-          <h1 class="title">
-            <span class="text">搜索历史</span>
-            <span>
+    <div class="shortcut-wrapper"  ref="shortcutWrapper">
+      <scroll class="shortCut" :data="shortCut" ref="scroll">
+        <div>
+          <div class="hot-key">
+            <h1 class="title">热门搜索</h1>
+            <ul>
+              <li v-for="item in hotKey" class="item" @click="addQuery(item.k)">
+                <span>{{item.k}}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="search-history">
+            <h1 class="title">
+              <span class="text">搜索历史</span>
+              <span @click="clearHistory">
               <i class="icon-clear">
               </i>
             </span>
-          </h1>
-          <search-list :list="searchHistory"></search-list>
+            </h1>
+            <search-list :list="searchHistory" @delete="delSearch" @select="addQuery"></search-list>
+          </div>
         </div>
-      </div>
+      </scroll>
+
     </div>
-    <div class="search-result" v-show="queryStr">
-      <suggest :query="queryStr" :showSinger="showSinger" @listScroll="blurInput" @select="saveSearch"></suggest>
+    <div class="search-result" v-show="queryStr" ref="searchResult">
+      <suggest :query="queryStr" :showSinger="showSinger" @listScroll="blurInput" @select="saveSearch" ref="suggest"></suggest>
     </div>
+    <Confirm ref="confirm" text="是否清空所有搜索历史" confirmBtnText="清空" @confirm="confirmDel" @cancel="cancelDel"></Confirm>
     <router-view></router-view>
   </div>
 </template>
 
 <script  type="text/ecmascript-6">
   import SearchBox from '@/base/search-box/search-box'
-
+  import Confirm from '@/base/confirm/confirm'
   import SearchList from '@/base/search-list/search-list'
   import Suggest from '@/components/suggest/suggest'
   import {getHotKey} from '@/api/search'
+  import Scroll from '@/base/scroll/scroll'
   import {ERR_OK} from '@/api/config'
+  import {playlistMixin} from '@/common/js/mixin.js'
   import {mapActions,mapGetters} from 'vuex'
   export default {
+    mixins:[playlistMixin],
     data(){
       return {
         hotKey:[],
@@ -52,7 +59,9 @@
     components:{
       SearchBox,
       SearchList,
-      Suggest
+      Suggest,
+      Confirm,
+      Scroll
     },
     created(){
       this._getHotKey();
@@ -60,9 +69,20 @@
     computed:{
       ...mapGetters([
         'searchHistory'
-      ])
+      ]),
+      shortCut(){
+        return this.hotKey.concat(this.SearchList)
+      }
     },
     methods:{
+      handlePlaylist(playList){
+        const bottom= playList.length>0?'60px':'';
+        this.$refs.shortcutWrapper.style.bottom=bottom;
+        this.$refs.scroll.refresh();
+        this.$refs.searchResult.style.bottom=bottom;
+        this.$refs.suggest.scrollRefresh();
+
+      },
       addQuery(k){
         this.$refs.searchBox.setQuery(k);
       },
@@ -81,14 +101,40 @@
           }
         })
       },
+
       saveSearch(item){
         //console.log(item);
-        this.saveSearchHistory(item)
+        this.saveSearchHistory(this.queryStr)
+      },
+      delSearch(item){
+        console.log(item);
+        this.deleteSearchHistory(item)
+      },
+      clearHistory(){
+        this.$refs.confirm.show();
+
+      },
+      confirmDel(){
+        this.clearSearchHistory();
+      },
+      cancelDel(){
+        this.$refs.confirm.hide();
       },
       ...mapActions([
-        'saveSearchHistory'
+        'saveSearchHistory',
+        'deleteSearchHistory',
+        'clearSearchHistory'
       ])
-    }
+    },
+    watch: {
+      query(newQuery) {
+        if (!newQuery) {
+          setTimeout(() => {
+            this.$refs.scroll.refresh()
+          }, 20)
+        }
+      }
+    },
   }
 </script>
 
@@ -116,12 +162,17 @@
       top:178px;
       bottom: 0;
       width: 100%;
+      .shortCut{
+        height: 100%;
+        overflow: hidden;
+      }
       .hot-key{
         margin:0 20px 20px 20px;
         .title{
           font-size: @font-size-medium;
           color:@color-text-l;
           margin-bottom: 20px;
+          line-height: @font-size-medium;
         }
         .item{
           display: inline-block;
