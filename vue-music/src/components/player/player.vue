@@ -88,11 +88,12 @@
             <i @click.stop="togglePlay" :class="miniPlayIcon" class="icon-mini"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <play-list ref="playlist"></play-list>
     <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @ended="end" @timeupdate="updateTime"></audio>
 	</div>
 </template>
@@ -107,8 +108,8 @@
   import {shuffle} from '@/common/js/util.js'
   import Lyric from 'lyric-parser'
   import Scroll from '@/base/scroll/scroll'
+  import PlayList from '@/components/playlist/playlist'
   const transform = prefixStyle('transform');
-
   const transitionDuration = prefixStyle('transitionDuration');
   export default {
     data(){
@@ -125,7 +126,8 @@
     components:{
       ProgressBar,
       ProgressCircle,
-      Scroll
+      Scroll,
+      PlayList
     },
     computed:{
       ...mapGetters([  //获取暴露出vuex中的变量
@@ -452,6 +454,9 @@
         this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
         this.$refs.middleL.style.opacity=opacity;
       },
+      showPlayList(){
+        this.$refs.playlist.show()
+      },
       ...mapMutations(        //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
           setFullScreen:'SET_FULL_SCREEN',
@@ -464,6 +469,9 @@
     },
     watch:{
       currentSong(newSong,oldSong){ //监听当前歌曲信息的变化            //id不变不执行play()
+        if(!newSong.id){  //删除歌曲列表导致currentSong为空，过滤报错
+          return ;
+        }
         if(newSong.id===oldSong.id){
           return ;
         }

@@ -9,6 +9,7 @@ function findIndex(list, song) {
 }
 /*选择播放当前是什么播放模式就保留播放模式，对播放列表和当前播放index做适配*/
 export const selectPlay=function ({commit,state},{list,index}) {
+  commit(types.SET_SEQUENCE_LIST, list);
 
   if (state.mode === playMode.random) {
     let randomList = shuffle(list);
@@ -17,7 +18,6 @@ export const selectPlay=function ({commit,state},{list,index}) {
   } else {
     commit(types.SET_PLAYLIST, list)
   }
-  commit(types.SET_SEQUENCE_LIST,list);
   commit(types.SET_CURRENT_INDEX,index);
   commit(types.SET_FULL_SCREEN,true);
   commit(types.SET_PLAYING_STATE,true);
@@ -25,10 +25,11 @@ export const selectPlay=function ({commit,state},{list,index}) {
 
 /*随机播放，设置播放模式为随机播放，同时匹配播放列表打乱*/
 export const randomPlay=function ({commit,state},{list}) {
-  let plist=shuffle(list);
-  commit(types.SET_PLAYLIST,plist);
   commit(types.SET_SEQUENCE_LIST,list);
   commit(types.SET_PLAY_MODE,playMode.random);
+  let randomList=shuffle(list);
+  commit(types.SET_PLAYLIST,randomList);
+
   commit(types.SET_CURRENT_INDEX,0);
   commit(types.SET_FULL_SCREEN,true);
   commit(types.SET_PLAYING_STATE,true);
@@ -65,6 +66,8 @@ export const insertSong=function ({commit,state},song) {
   //判断这首歌在sequenceList中是否存在
   let fsIndex=findIndex(sequenceList,song);
 
+  sequenceList.splice(currentSIndex, 0, song);
+
   //如果这首歌在sequenceList中存在
   if(fsIndex>-1){
     //如果插入的位置在它原本的位置之后
@@ -75,7 +78,7 @@ export const insertSong=function ({commit,state},song) {
       sequenceList.splice(fsIndex+1,1);
     }
   }
-
+  //console.log(sequenceList);
   //提交mutation
   commit(types.SET_PLAYLIST,playList);
   commit(types.SET_SEQUENCE_LIST,sequenceList);
@@ -98,4 +101,34 @@ export const deleteSearchHistory=function ({commit,state},query) {
 //清空历史记录
 export const clearSearchHistory=function ({commit}) {
   commit(types.SET_SEARCH_HISTORY,clearSearch())
+};
+
+//删除播放列表
+export const deleteSongList = function ({commit}) {
+  commit(types.SET_CURRENT_INDEX, -1);
+  commit(types.SET_PLAYLIST, []);
+  commit(types.SET_SEQUENCE_LIST, []);
+  commit(types.SET_PLAYING_STATE, false);
+};
+
+//删除歌曲
+export const deleteSong=function ({commit,state},song) {
+  let playList=state.playList.slice();
+  let sequenceList=state.sequenceList.slice();
+  let currentIndex=state.currentIndex;
+  let pIndex=findIndex(playList,song);
+  playList.splice(pIndex,1);
+  let sIndex=findIndex(sequenceList,song);
+  sequenceList.splice(sIndex,1);
+  if (currentIndex > pIndex || currentIndex === playList.length) {
+    currentIndex--
+  }
+  commit(types.SET_PLAYLIST,playList);
+  commit(types.SET_SEQUENCE_LIST,sequenceList);
+  commit(types.SET_CURRENT_INDEX,currentIndex);
+  if (!playList.length) {
+    commit(types.SET_PLAYING_STATE, false)
+  } else {
+    commit(types.SET_PLAYING_STATE, true)
+  }
 };
