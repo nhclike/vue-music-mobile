@@ -105,13 +105,14 @@
   import ProgressBar from '@/base/progress-bar/progress-bar'
   import ProgressCircle from '@/base/progress-circle/progress-circle';
   import {playMode} from '@/common/js/config.js';
-  import {shuffle} from '@/common/js/util.js'
   import Lyric from 'lyric-parser'
   import Scroll from '@/base/scroll/scroll'
   import PlayList from '@/components/playlist/playlist'
+  import {playerMixin} from '@/common/js/mixin.js'
   const transform = prefixStyle('transform');
   const transitionDuration = prefixStyle('transitionDuration');
   export default {
+    mixins:[playerMixin],
     data(){
       return {
         songReady:false,
@@ -132,12 +133,8 @@
     computed:{
       ...mapGetters([  //获取暴露出vuex中的变量
         'fullScreen',
-        'playList',
-        'currentSong',
         'playing',
         'currentIndex',
-        'mode',
-        'sequenceList'
       ]),
       playIcon(){
         //console.log(this.playing);
@@ -149,9 +146,7 @@
       addCls(){
         return this.playing?'play':'play pause'
       },
-      iconMode(){
-        return this.mode===playMode.sequence?'icon-sequence':this.mode===playMode.loop?'icon-loop':'icon-random'
-      },
+
       disableCls(){
         return this.songReady?'':'disable'
       },
@@ -352,29 +347,7 @@
           this.togglePlay();
         }
       },
-      changeMode(){
-        const mode=(this.mode+1)%3;
-        this.setPlayMode(mode);
-        let List=null;
-        if(mode===playMode.random){
-          List=shuffle(this.sequenceList);
 
-        }else{
-          List=this.sequenceList;
-        }
-        this._resetCurrentIndex(List);
-
-        this.setPlayList(List);
-      },
-      _resetCurrentIndex(list){
-          //console.log(this.currentSong);
-        let index=list.findIndex((item)=>{
-          //console.log(item)
-          return item.id===this.currentSong.id;
-
-        });
-        this.setCurrentIndex(index);
-      },
       _getLyric(){
         this.currentSong.getLyric().then((lyric)=>{
           this.currentLyric=new Lyric(lyric,this.handleLyric);
@@ -461,9 +434,7 @@
         {
           setFullScreen:'SET_FULL_SCREEN',
           setPlayingState:'SET_PLAYING_STATE',
-          setCurrentIndex:'SET_CURRENT_INDEX',
-          setPlayMode:'SET_PLAY_MODE',
-          setPlayList:'SET_PLAYLIST'
+
         }
       )
     },
