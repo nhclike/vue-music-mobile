@@ -25,11 +25,14 @@ const mututations={
   [types.SET_DISC](state,list){
     state.disc=list
   },
-  [types.SET_TOP_LIST](state,list){
-    state.topList=list
+  [types.SET_TOP_LIST](state,topList){
+    state.topList=topList
   },
-  [types.SET_SEARCH_HISTORY](state,list){
-    state.searchHistory=list
+  [types.SET_SEARCH_HISTORY](state,history){
+    state.searchHistory=history
+  },
+  [types.SET_PLAY_HISTORY](state,history){
+    state.playHistory=history
   }
 };
 

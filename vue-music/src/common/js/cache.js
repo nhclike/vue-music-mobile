@@ -2,6 +2,8 @@ import storage from 'good-storage'
 const SEARCH_KEY='_search_';
 const SEARCH_MAX_LENGTH=15;
 
+const PLAY_KEY='_play_';
+const PLAY_MAX_LEN=200;
 //将一个值插入到数组前面，如果有重复的先删掉数组中原本有的值再插入到前面
 function insertArray(arr,val,compare,maxLen) {  //要插入的数组，要插入的值，比较函数，数组限制
   const index=arr.findIndex(compare);
@@ -56,4 +58,21 @@ export function deleteSearch(query) {
 export function clearSearch() {
   storage.remove(SEARCH_KEY);
   return []
+}
+
+
+//保存播放歌曲
+export function savePlay(song) {
+  let songs=storage.get(PLAY_KEY,[]);
+  insertArray(songs,song,(item)=>{
+    return item.id==song.id
+  },PLAY_MAX_LEN);
+  storage.set(PLAY_KEY,songs);
+  return songs;
+}
+
+
+//加载播放列表
+export function loadPlay() {
+  return storage.get(PLAY_KEY,[])
 }

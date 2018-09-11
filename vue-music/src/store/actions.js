@@ -1,7 +1,7 @@
 import * as types from './mutation-types'
 import {shuffle} from '@/common/js/util.js'
 import {playMode} from '@/common/js/config.js';
-import {saveSearch,deleteSearch,clearSearch} from '@/common/js/cache.js';
+import {saveSearch,deleteSearch,clearSearch,savePlay} from '@/common/js/cache.js';
 function findIndex(list, song) {
   return list.findIndex((item) => {
     return item.id === song.id
@@ -132,3 +132,8 @@ export const deleteSong=function ({commit,state},song) {
     commit(types.SET_PLAYING_STATE, true)
   }
 };
+
+//保存播放记录
+export const savePlayHistory=function ({commit,state},song) {
+  commit(types.SET_PLAY_HISTORY,savePlay(song))
+}

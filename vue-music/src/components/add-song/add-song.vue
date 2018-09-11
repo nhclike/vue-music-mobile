@@ -10,13 +10,23 @@
       <div class="search-box-wrapper">
         <search-box ref="searchBox" @query="onQueryChange"  placeholder="搜索歌曲"></search-box>
       </div>
-      <div class="shortcut">
+      <div class="shortcut" v-show="!queryStr">
+        <switches :currentIndex="currentIndex" :switches="switches" @switch="switchItem"></switches>
         <div class="list-wrapper">
-          <div class="list-scroll">
+          <scroll ref="songList" class="list-scroll" v-if="currentIndex===0" :data="playHistory">
             <div class="list-inner">
+              <song-list :songs="playHistory" @selectItem="selectSong">
 
+              </song-list>
             </div>
-          </div>
+          </scroll>
+          <scroll ref="searchList" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
+            <div class="list-inner">
+              <search-list :list="searchHistory" @delete="deleteSearchHistory">
+
+              </search-list>
+            </div>
+          </scroll>
         </div>
       </div>
       <div class="search-result" v-show="queryStr" ref="searchResult">
@@ -30,14 +40,30 @@
   import SearchBox from '@/base/search-box/search-box'
   import {searchMixin} from '@/common/js/mixin.js'
   import Suggest from '@/components/suggest/suggest'
-
+  import Switches from '@/base/switches/switches'
+  import SongList from '@/base/song-list/song-list'
+  import SearchList from '@/base/search-list/search-list'
+  import Scroll from '@/base/scroll/scroll'
+  import Song from '@/common/js/song.js'
+  import {mapGetters,mapActions} from 'vuex'
   export default {
     mixins:[searchMixin],
     data(){
       return {
         showFlag:false,
-        showSinger:false
+        showSinger:false,
+        currentIndex:0,
+        switches:[
+          {name:'最近播放',title:'最近播放'},
+          {name:'搜索历史',title:'搜索历史'}
+          ]
       }
+    },
+    computed:{
+      ...mapGetters([
+        'playHistory',
+        'searchHistory'
+      ])
     },
     methods:{
       show(){
@@ -45,11 +71,28 @@
       },
       hide(){
         this.showFlag=false;
-      }
+      },
+      switchItem(index){
+        this.currentIndex=index;
+      },
+      selectSong(item,index){
+        if(index!=0){
+          //console.log(new Song(item));
+          this.insertSong(new Song(item));
+        }
+
+      },
+      ...mapActions([
+        'insertSong'
+      ])
     },
     components:{
       SearchBox,
-      Suggest
+      Suggest,
+      Switches,
+      SongList,
+      SearchList,
+      Scroll
     }
   }
 </script>

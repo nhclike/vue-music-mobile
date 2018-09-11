@@ -99,7 +99,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters,mapMutations} from 'vuex';
+  import {mapGetters,mapMutations,mapActions} from 'vuex';
   import animations from 'create-keyframe-animation';
   import {prefixStyle} from '@/common/js/dom';
   import ProgressBar from '@/base/progress-bar/progress-bar'
@@ -299,6 +299,8 @@
       ready(){
         //console.log('canplay')
         this.songReady=true;  //歌曲准备好了
+        //此时记录播放的歌曲
+        this.savePlayHistory(this.currentSong)
       },
       error(){
         this.songReady=true;  //歌曲准备好了
@@ -436,7 +438,10 @@
           setPlayingState:'SET_PLAYING_STATE',
 
         }
-      )
+      ),
+      ...mapActions([
+         'savePlayHistory'
+      ])
     },
     watch:{
       currentSong(newSong,oldSong){ //监听当前歌曲信息的变化            //id不变不执行play()
