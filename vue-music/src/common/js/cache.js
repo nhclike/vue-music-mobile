@@ -4,6 +4,9 @@ const SEARCH_MAX_LENGTH=15;
 
 const PLAY_KEY='_play_';
 const PLAY_MAX_LEN=200;
+
+const FAVORITE_KEY='_favorite_';
+const FAVORITE_MAX_LEN=200;
 //将一个值插入到数组前面，如果有重复的先删掉数组中原本有的值再插入到前面
 function insertArray(arr,val,compare,maxLen) {  //要插入的数组，要插入的值，比较函数，数组限制
   const index=arr.findIndex(compare);
@@ -19,6 +22,12 @@ function insertArray(arr,val,compare,maxLen) {  //要插入的数组，要插入
   }
 }
 
+function deleteFromArray(arr,compare) {
+  const index=arr.findIndex(compare);
+  if(index>-1){
+    arr.splice(index,1)
+  }
+}
 
 //保存搜索记录存储到storage中
 export function saveSearch(query) {
@@ -41,14 +50,10 @@ export function loadSearch() {
 //删除记录
 export function deleteSearch(query) {
   let searches=storage.get(SEARCH_KEY,[]);
-  let delIndex=searches.findIndex((item)=>{
+  deleteFromArray(searches,(item)=>{
     return item===query
-  });
-  //console.log(searches);
-  //console.log(delIndex);
-  if(delIndex>-1){
-    searches.splice(delIndex,1);
-  }
+  })
+
 
   storage.set(SEARCH_KEY,searches);
   return searches
@@ -75,4 +80,28 @@ export function savePlay(song) {
 //加载播放列表
 export function loadPlay() {
   return storage.get(PLAY_KEY,[])
+}
+//加载收藏列表
+export function loadFavorite() {
+  return storage.get(FAVORITE_KEY,[])
+}
+
+// 保存收藏列表
+export function saveFavorite(song) {
+  var favorite=storage.get(FAVORITE_KEY,[]);
+  insertArray(favorite,song,(item)=>{
+    return item.id==song.id
+  },FAVORITE_MAX_LEN)
+  storage.set(FAVORITE_KEY,favorite);
+  return favorite;
+}
+
+//删除收藏列表
+export function deleteFavorite(song) {
+  let favorite=storage.get(FAVORITE_KEY,[]);
+  deleteFromArray(favorite,(item)=>{
+    return item.id==song.id
+  })
+  storage.set(FAVORITE_KEY,favorite)
+  return favorite;
 }

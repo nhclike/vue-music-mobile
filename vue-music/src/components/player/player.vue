@@ -68,7 +68,7 @@
               <i class="icon-next" @click="next" :class="disableCls"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon-not-favorite"></i>
+              <i :class="getFavoriteIcon(currentSong)" class="icon" @click.stop="toggleFavorite(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -706,6 +706,9 @@
                  font-size: 30px;
               }
             }
+            &.icon-favorite{
+                color:@color-sub-theme;
+             }
           }
         }
       }
