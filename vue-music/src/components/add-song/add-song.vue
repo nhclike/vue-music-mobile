@@ -20,9 +20,9 @@
               </song-list>
             </div>
           </scroll>
-          <scroll ref="searchList" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
+          <scroll ref="searchList" :refreshDelay="refreshDelay" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
             <div class="list-inner">
-              <search-list :list="searchHistory" @delete="deleteSearchHistory">
+              <search-list :list="searchHistory" @delete="deleteSearchHistory" @select="addQuery">
 
               </search-list>
             </div>
@@ -30,8 +30,14 @@
         </div>
       </div>
       <div class="search-result" v-show="queryStr" ref="searchResult">
-        <suggest :query="queryStr" :showSinger="showSinger" @listScroll="blurInput" @select="saveSearch"></suggest>
+        <suggest :query="queryStr" :showSinger="showSinger" @listScroll="blurInput" @select="selectSuggest"></suggest>
       </div>
+      <top-tip ref="topTip">
+        <div class="tip-title">
+          <i class="icon-ok"></i>
+          <span class="text">1首歌已经添加到播放队列</span>
+        </div>
+      </top-tip>
     </div>
   </div>
 </template>
@@ -45,6 +51,7 @@
   import SearchList from '@/base/search-list/search-list'
   import Scroll from '@/base/scroll/scroll'
   import Song from '@/common/js/song.js'
+  import TopTip from '@/base/top-tip/top-tip'
   import {mapGetters,mapActions} from 'vuex'
   export default {
     mixins:[searchMixin],
@@ -68,6 +75,13 @@
     methods:{
       show(){
         this.showFlag=true;
+        if(this.currentIndex==0){
+          this.$refs.songList.refresh()
+        }
+        else{
+          this.$refs.searchList.refresh();
+        }
+
       },
       hide(){
         this.showFlag=false;
@@ -79,7 +93,16 @@
         if(index!=0){
           //console.log(new Song(item));
           this.insertSong(new Song(item));
+          this.showTip();
         }
+
+      },
+      selectSuggest(item){
+        this.saveSearch(item);
+        this.showTip();
+      },
+      showTip(){
+        this.$refs.topTip.show()
 
       },
       ...mapActions([
@@ -92,7 +115,8 @@
       Switches,
       SongList,
       SearchList,
-      Scroll
+      Scroll,
+      TopTip
     }
   }
 </script>
@@ -152,14 +176,20 @@
     top:124px;
     bottom: 0;
     width: 100%;
-    .tip-title{
-      text-align: center;
-      padding: 18px 0;
-      font-size: 0;
-      .icon-ok{
-        font-size: @font-size-medium;
-        color:@color-text;
-      }
+
+  }
+  .tip-title{
+    text-align: center;
+    padding: 18px 0;
+    font-size: 0;
+    .icon-ok{
+      font-size: @font-size-medium;
+      color:@color-text;
+      margin-right: 4px;
+    }
+    .text{
+      font-size: @font-size-medium;
+      color:@color-text;
     }
   }
 }

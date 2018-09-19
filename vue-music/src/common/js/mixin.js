@@ -1,4 +1,3 @@
-
 import {mapGetters,mapMutations,mapActions} from 'vuex'
 import {playMode} from '@/common/js/config.js';
 import {shuffle} from '@/common/js/util.js'
@@ -58,11 +57,8 @@ export const playerMixin={
       this.setPlayList(List);
     },
     _resetCurrentIndex(list){
-      //console.log(this.currentSong);
       let index=list.findIndex((item)=>{
-        //console.log(item)
         return item.id===this.currentSong.id;
-
       });
       this.setCurrentIndex(index);
     },
@@ -82,6 +78,7 @@ export const searchMixin={
   data(){
     return{
       queryStr:'',
+      refreshDelay:100
     }
   },
   computed:{
@@ -92,13 +89,11 @@ export const searchMixin={
   methods:{
     onQueryChange(query){
       this.queryStr=query
-      //console.log(query)
     },
     addQuery(k){
       this.$refs.searchBox.setQuery(k);
     },
     saveSearch(item){
-      //console.log(item);
       this.saveSearchHistory(this.queryStr)
     },
     blurInput(){
