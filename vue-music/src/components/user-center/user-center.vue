@@ -100,6 +100,9 @@
       },
       random(){
         let list=this.currentIndex===0?this.favoriteList:this.playHistory;
+        if(list.length===0){
+          return ;
+        }
         list=list.map((song)=>{
           return new Song(song)
         });

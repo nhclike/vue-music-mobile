@@ -94,7 +94,7 @@
       </div>
     </transition>
     <play-list ref="playlist"></play-list>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @ended="end" @timeupdate="updateTime"></audio>
+    <audio :src="currentSong.url" ref="audio" @play="ready" @error="error" @ended="end" @timeupdate="updateTime"></audio>
 	</div>
 </template>
 
@@ -254,7 +254,8 @@
         }
         //console.log('prev song');
         if(this.playList.length===1){
-          this.loop()
+          this.loop();
+          return ;
         }
         else{
           let index=this.currentIndex+1;
@@ -278,7 +279,8 @@
           return;
         }
         if(this.playList.length===1){
-          this.loop()
+          this.loop();
+          return ;
         }
         else{
           let index=this.currentIndex-1;
@@ -352,6 +354,9 @@
 
       _getLyric(){
         this.currentSong.getLyric().then((lyric)=>{
+          if(this.currentSong.lyric!=lyric){
+            return ;
+          }
           this.currentLyric=new Lyric(lyric,this.handleLyric);
           if(this.playing){
             this.currentLyric.play();
@@ -453,15 +458,19 @@
         }
         if(this.currentLyric){
           this.currentLyric.stop();
+          this.currentTime=0;
+          this.currentLineNum=0;
+          this.playingLyric='';
         }
-        this.$nextTick(()=>{
+        clearTimeout(this.timer);
+        this.timer=setTimeout(()=>{
           //dom元素更新后执行，此时能拿到audio元素的属性,调播放的方法并且改变播放状态为true
           this.$refs.audio.play();
           //this.currentSong.getLyric(); //调用获取歌词的方法
           //console.log(newSong.lyric);  //此时直接console.log会发现为undefined因为getLyric中发送的请求为异步，请求回来后才有值
                                           //解决方案：让getLyric返回一个Promise
           this._getLyric();
-        })
+        },1000)
       },
       playing(newPlay){  //监听当前的播放状态
         //console.log(newPlay);
