@@ -38,7 +38,7 @@ apiRoutes.get('/getDiscList',function (req,res) {
     console.log(e);
   })
 });
-apiRoutes.get('/api/lyric', function(req, res) {
+apiRoutes.get('/lyric', function(req, res) {
   var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
   axios.get(url, {
     headers: {
@@ -91,7 +91,7 @@ apiRoutes.get('/search',function (req,res) {
       host:'c.y.qq.com'
     },
     params:req.query
-  })then((response)=>{
+  }).then((response)=>{
     let ret = response.data
     if (typeof ret === 'string') {
       const reg = /^\w+\(({.+})\)$/
