@@ -1,14 +1,16 @@
 <template>
     <div class="search-box">
       <i class="icon-search"></i>
-      <input type="text" v-model="query" class="box" :placeholder="placeholder">
-      <i class="icon-dismiss" v-show="this.query"></i>
+      <input type="text" v-model="query" class="box" :placeholder="placeholder" ref="query">
+      <i @click="clear" class="icon-dismiss" v-show="this.query"></i>
     </div>
 </template>
 
 
 <script>
-    export default{
+  import {debounce} from '@/common/js/util.js'
+
+  export default{
       props: {
         placeholder: {
           type: String,
@@ -19,12 +21,28 @@
         return {
           query: ''
         }
+      },
+      methods:{
+        clear(){
+          this.query=''
+        },
+        setQuery(query){
+          this.query=query
+        },
+        blur(){
+          this.$refs.query.blur();
+        }
+      },
+      created(){
+        this.$watch('query',debounce((newQuery)=>{
+          this.$emit('query',newQuery)
+        },200))
       }
     }
 </script>
 
 <style scoped lang="less">
-    @import "./../../common/css/variable";
+    @import "./../../common/css/variable.less";
   .search-box{
     display: flex;
     height: 40px;
@@ -52,7 +70,7 @@
     }
     .icon-dismiss{
       font-size: 16px;
-      color: @color-background
+      color:  @color-text
     }
   }
 </style>

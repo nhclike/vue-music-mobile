@@ -9,11 +9,15 @@ import '@/common/css/index.css'
 import store from './store'
 Vue.config.productionTip = false;
 
-/* eslint-disable no-unused-vars */
+
+/* eslint-disable no-unused-vars*/
 import vConsole from 'vconsole'
-console.log("test");
+/*手机上用console.log调试*/
+console.log('mobile console test');
+
 /* 处理移动端click事件300毫秒延迟 */
-fastclick.attach(document.body)
+fastclick.attach(document.body);
+
 
 Vue.use(VueLazyLoad,{
   loading:require(

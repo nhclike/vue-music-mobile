@@ -68,7 +68,7 @@
               <i class="icon-next" @click="next" :class="disableCls"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon-not-favorite"></i>
+              <i :class="getFavoriteIcon(currentSong)" class="icon" @click.stop="toggleFavorite(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -88,29 +88,31 @@
             <i @click.stop="togglePlay" :class="miniPlayIcon" class="icon-mini"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlayList">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @ended="end" @timeupdate="updateTime"></audio>
+    <play-list ref="playlist"></play-list>
+    <audio :src="currentSong.url" ref="audio" @play="ready" @error="error" @ended="end" @timeupdate="updateTime"></audio>
 	</div>
 </template>
 
 <script type="text/ecmascript-6">
-  import {mapGetters,mapMutations} from 'vuex';
+  import {mapGetters,mapMutations,mapActions} from 'vuex';
   import animations from 'create-keyframe-animation';
   import {prefixStyle} from '@/common/js/dom';
   import ProgressBar from '@/base/progress-bar/progress-bar'
   import ProgressCircle from '@/base/progress-circle/progress-circle';
   import {playMode} from '@/common/js/config.js';
-  import {shuffle} from '@/common/js/util.js'
   import Lyric from 'lyric-parser'
   import Scroll from '@/base/scroll/scroll'
+  import PlayList from '@/components/playlist/playlist'
+  import {playerMixin} from '@/common/js/mixin.js'
   const transform = prefixStyle('transform');
-
   const transitionDuration = prefixStyle('transitionDuration');
   export default {
+    mixins:[playerMixin],
     data(){
       return {
         songReady:false,
@@ -125,17 +127,14 @@
     components:{
       ProgressBar,
       ProgressCircle,
-      Scroll
+      Scroll,
+      PlayList
     },
     computed:{
       ...mapGetters([  //获取暴露出vuex中的变量
         'fullScreen',
-        'playList',
-        'currentSong',
         'playing',
         'currentIndex',
-        'mode',
-        'sequenceList'
       ]),
       playIcon(){
         //console.log(this.playing);
@@ -147,9 +146,7 @@
       addCls(){
         return this.playing?'play':'play pause'
       },
-      iconMode(){
-        return this.mode===playMode.sequence?'icon-sequence':this.mode===playMode.loop?'icon-loop':'icon-random'
-      },
+
       disableCls(){
         return this.songReady?'':'disable'
       },
@@ -257,7 +254,8 @@
         }
         //console.log('prev song');
         if(this.playList.length===1){
-          this.loop()
+          this.loop();
+          return ;
         }
         else{
           let index=this.currentIndex+1;
@@ -281,7 +279,8 @@
           return;
         }
         if(this.playList.length===1){
-          this.loop()
+          this.loop();
+          return ;
         }
         else{
           let index=this.currentIndex-1;
@@ -302,6 +301,8 @@
       ready(){
         //console.log('canplay')
         this.songReady=true;  //歌曲准备好了
+        //此时记录播放的歌曲
+        this.savePlayHistory(this.currentSong)
       },
       error(){
         this.songReady=true;  //歌曲准备好了
@@ -350,31 +351,12 @@
           this.togglePlay();
         }
       },
-      changeMode(){
-        const mode=(this.mode+1)%3;
-        this.setPlayMode(mode);
-        let List=null;
-        if(mode===playMode.random){
-          List=shuffle(this.sequenceList);
 
-        }else{
-          List=this.sequenceList;
-        }
-        this._resetCurrentIndex(List);
-
-        this.setPlayList(List);
-      },
-      _resetCurrentIndex(list){
-          //console.log(this.currentSong);
-        let index=list.findIndex((item)=>{
-          //console.log(item)
-          return item.id===this.currentSong.id;
-
-        });
-        this.setCurrentIndex(index);
-      },
       _getLyric(){
         this.currentSong.getLyric().then((lyric)=>{
+          if(this.currentSong.lyric!=lyric){
+            return ;
+          }
           this.currentLyric=new Lyric(lyric,this.handleLyric);
           if(this.playing){
             this.currentLyric.play();
@@ -443,49 +425,52 @@
             offsetWidth=0;
             this.currentShow='cd';
             opacity=1;
-
-
           }
           else {
             offsetWidth=-window.innerWidth;
             opacity=0;
-
           }
         }
         this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
         this.$refs.middleL.style.opacity=opacity;
-
-
+      },
+      showPlayList(){
+        this.$refs.playlist.show()
       },
       ...mapMutations(        //不能直接修改vuex中的变量,通过映射方法传参数的方式提交改变vuex中的参数
         {
           setFullScreen:'SET_FULL_SCREEN',
           setPlayingState:'SET_PLAYING_STATE',
-          setCurrentIndex:'SET_CURRENT_INDEX',
-          setPlayMode:'SET_PLAY_MODE',
-          setPlayList:'SET_PLAYLIST'
-        }
-      )
-    },
 
+        }
+      ),
+      ...mapActions([
+         'savePlayHistory'
+      ])
+    },
     watch:{
       currentSong(newSong,oldSong){ //监听当前歌曲信息的变化            //id不变不执行play()
+        if(!newSong.id){  //删除歌曲列表导致currentSong为空，过滤报错
+          return ;
+        }
         if(newSong.id===oldSong.id){
           return ;
         }
         if(this.currentLyric){
           this.currentLyric.stop();
+          this.currentTime=0;
+          this.currentLineNum=0;
+          this.playingLyric='';
         }
-        this.$nextTick(()=>{
+        clearTimeout(this.timer);
+        this.timer=setTimeout(()=>{
           //dom元素更新后执行，此时能拿到audio元素的属性,调播放的方法并且改变播放状态为true
           this.$refs.audio.play();
-
           //this.currentSong.getLyric(); //调用获取歌词的方法
-
           //console.log(newSong.lyric);  //此时直接console.log会发现为undefined因为getLyric中发送的请求为异步，请求回来后才有值
                                           //解决方案：让getLyric返回一个Promise
           this._getLyric();
-        })
+        },1000)
       },
       playing(newPlay){  //监听当前的播放状态
         //console.log(newPlay);
@@ -730,6 +715,9 @@
                  font-size: 30px;
               }
             }
+            &.icon-favorite{
+                color:@color-sub-theme;
+             }
           }
         }
       }

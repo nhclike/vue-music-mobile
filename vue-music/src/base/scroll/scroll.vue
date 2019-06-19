@@ -23,6 +23,18 @@
       listenScroll:{
         type:Boolean,
         default:false
+      },
+      pullup:{
+        type:Boolean,
+        default:false
+      },
+      beforeScroll:{
+        type:Boolean,
+        default:false
+      },
+      refreshDelay:{
+        type:Number,
+        default:20
       }
     },
     mounted(){
@@ -36,17 +48,30 @@
           return;
         }
         else{
-
           this.scroll=new BScroll(this.$refs.wrapper,{
             probeType:this.probeType,
             click:this.click
           })
         }
-
+        //监听滚动事件
         if(this.listenScroll){
           let me=this;
           this.scroll.on('scroll',(pos)=>{
             me.$emit('scroll',pos)
+          })
+        }
+        //监听上拉加载（实质监听滚动结束事件判断是否滚动到底部，如果是就派发事件出去告诉外部）
+        if (this.pullup) {
+          this.scroll.on('scrollEnd', () => {
+            if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+              this.$emit('scrollToEnd')
+            }
+          })
+        }
+        //监听开始滚动事件
+        if(this.beforeScroll){
+          this.scroll.on('beforeScrollStart',()=>{
+            this.$emit('beforeScroll')
           })
         }
       },
@@ -73,7 +98,7 @@
       data(){
         setTimeout(()=>{
           this.refresh()
-        },20)
+        },this.refreshDelay)
       }
     }
   }
